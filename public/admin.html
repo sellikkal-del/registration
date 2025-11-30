@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة التحكم - وزارة المالية</title>
+    <title>Admin Panel - Ministry of Finance</title>
     <style>
         * {
             margin: 0;
@@ -63,7 +63,7 @@
             padding: 20px;
             border-radius: 12px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            border-right: 4px solid #0f6b4a;
+            border-left: 4px solid #0f6b4a;
         }
 
         .stat-value {
@@ -166,7 +166,7 @@
         th {
             background-color: #f5f5f5;
             padding: 12px;
-            text-align: right;
+            text-align: left;
             font-weight: 600;
             color: #333;
             border-bottom: 2px solid #0f6b4a;
@@ -176,7 +176,7 @@
             padding: 12px;
             border-bottom: 1px solid #e0e0e0;
             color: #666;
-            text-align: right;
+            text-align: left;
         }
 
         tr:hover {
@@ -321,12 +321,27 @@
             border-top: 2px solid #0f6b4a;
             border-radius: 50%;
             animation: spin 1s linear infinite;
-            margin-left: 8px;
+            margin-right: 8px;
         }
 
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #1565c0;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+
+        .info-box p {
+            color: #1565c0;
+            font-size: 14px;
+            line-height: 1.6;
+            margin: 0;
         }
     </style>
 </head>
@@ -335,8 +350,8 @@
         <header>
             <img src="logo.png" alt="Ministry of Finance" class="logo">
             <div class="header-text">
-                <h1>لوحة التحكم - تسجيل ورش العمل</h1>
-                <p class="subtitle">Workshop Registration Admin Panel</p>
+                <h1>Workshop Registration - Admin Panel</h1>
+                <p class="subtitle">Ministry of Finance - Kingdom of Saudi Arabia</p>
             </div>
         </header>
 
@@ -347,54 +362,58 @@
         <div id="messageArea"></div>
 
         <div class="section">
-            <h2>📋 استيراد البيانات من Excel</h2>
+            <h2>📋 Import Data from Excel</h2>
             
+            <div class="info-box">
+                <p><strong>Excel File Format:</strong> Your file should have columns: Name, Email, and workshop columns with "Yes" for available options.</p>
+            </div>
+
             <div class="import-area" id="importArea">
                 <div style="font-size: 48px; margin-bottom: 16px;">📁</div>
-                <p style="color: #666; margin-bottom: 16px;">اسحب وأفلت ملف Excel هنا، أو انقر لتصفح</p>
+                <p style="color: #666; margin-bottom: 16px;">Drag and drop your Excel file here, or click to browse</p>
                 <p style="color: #999; font-size: 13px; margin-bottom: 16px;">
-                    الملف يجب أن يحتوي على: Name, Email وأعمدة ورش العمل مع "Yes" للخيارات المتاحة
+                    File must contain: Name, Email, and workshop columns with "Yes" for available options
                 </p>
                 <div class="file-input-wrapper">
-                    <label for="fileInput" class="btn btn-primary">اختر ملف Excel</label>
+                    <label for="fileInput" class="btn btn-primary">Choose Excel File</label>
                     <input type="file" id="fileInput" accept=".xlsx,.xls">
                 </div>
                 <div id="fileName" style="margin-top: 16px; color: #0f6b4a; font-weight: 600;"></div>
             </div>
 
             <div class="capacity-input-section" id="capacitySection">
-                <h3 style="color: #0f6b4a; margin-bottom: 15px;">تحديد سعة كل ورشة عمل</h3>
+                <h3 style="color: #0f6b4a; margin-bottom: 15px;">Set Workshop Capacity</h3>
                 <p style="color: #666; margin-bottom: 15px; font-size: 14px;">
-                    حدد الحد الأقصى للمشاركين لكل ورشة عمل
+                    Define the maximum number of participants for each workshop
                 </p>
                 <div class="capacity-grid" id="capacityGrid"></div>
             </div>
 
             <div class="button-group">
                 <button class="btn btn-primary" id="importBtn" disabled>
-                    استيراد البيانات
+                    Import Data
                 </button>
             </div>
         </div>
 
         <div class="section">
             <div class="tabs">
-                <button class="tab active" onclick="switchTab('registrations')">التسجيلات</button>
-                <button class="tab" onclick="switchTab('workshops')">ورش العمل</button>
+                <button class="tab active" onclick="switchTab('registrations')">Registrations</button>
+                <button class="tab" onclick="switchTab('workshops')">Workshops</button>
             </div>
 
             <div id="registrationsTab" class="tab-content active">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h2 style="margin: 0;">👥 قائمة المسجلين</h2>
+                    <h2 style="margin: 0;">👥 Registration List</h2>
                     <button class="btn btn-danger btn-small" onclick="clearRegistrations()">
-                        مسح جميع التسجيلات
+                        Clear All Registrations
                     </button>
                 </div>
                 <div id="registrationsTable"></div>
             </div>
 
             <div id="workshopsTab" class="tab-content">
-                <h2>🎓 نظرة عامة على ورش العمل</h2>
+                <h2>🎓 Workshop Overview</h2>
                 <div id="workshopsTable"></div>
             </div>
         </div>
@@ -417,19 +436,19 @@
                     statsGrid.innerHTML = `
                         <div class="stat-card">
                             <div class="stat-value">${data.stats.totalAttendees}</div>
-                            <div class="stat-label">إجمالي الحضور / Total Attendees</div>
+                            <div class="stat-label">Total Attendees</div>
                         </div>
                         <div class="stat-card">
                             <div class="stat-value">${data.stats.totalWorkshops}</div>
-                            <div class="stat-label">ورش العمل / Workshops</div>
+                            <div class="stat-label">Total Workshops</div>
                         </div>
                         <div class="stat-card">
                             <div class="stat-value">${data.stats.totalRegistrations}</div>
-                            <div class="stat-label">التسجيلات / Registrations</div>
+                            <div class="stat-label">Registrations</div>
                         </div>
                         <div class="stat-card">
                             <div class="stat-value">${data.stats.registrationRate}%</div>
-                            <div class="stat-label">معدل التسجيل / Registration Rate</div>
+                            <div class="stat-label">Registration Rate</div>
                         </div>
                     `;
                 }
@@ -451,7 +470,7 @@
                         registrationsTable.innerHTML = `
                             <div class="empty-state">
                                 <div class="empty-state-icon">📭</div>
-                                <p>لا توجد تسجيلات بعد / No registrations yet</p>
+                                <p>No registrations yet</p>
                             </div>
                         `;
                         return;
@@ -461,16 +480,16 @@
                         <table>
                             <thead>
                                 <tr>
-                                    <th>البريد الإلكتروني / Email</th>
-                                    <th>ورشة العمل / Workshop</th>
-                                    <th>تاريخ التسجيل / Registered At</th>
+                                    <th>Email</th>
+                                    <th>Workshop</th>
+                                    <th>Registered At</th>
                                 </tr>
                             </thead>
                             <tbody>
                     `;
 
                     data.registrations.forEach(reg => {
-                        const date = new Date(reg.registeredAt).toLocaleString('ar-SA');
+                        const date = new Date(reg.registeredAt).toLocaleString();
                         tableHTML += `
                             <tr>
                                 <td>${reg.email}</td>
@@ -499,7 +518,7 @@
                 workshopsTable.innerHTML = `
                     <div class="empty-state">
                         <div class="empty-state-icon">📚</div>
-                        <p>لا توجد ورش عمل. الرجاء استيراد البيانات / No workshops. Please import data.</p>
+                        <p>No workshops configured. Please import data.</p>
                     </div>
                 `;
                 return;
@@ -509,10 +528,10 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>اسم ورشة العمل / Workshop Name</th>
-                            <th>السعة / Capacity</th>
-                            <th>المسجلون / Registered</th>
-                            <th>الحالة / Status</th>
+                            <th>Workshop Name</th>
+                            <th>Capacity</th>
+                            <th>Registered</th>
+                            <th>Status</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -524,11 +543,11 @@
                 let statusBadge;
                 
                 if (spotsLeft === 0) {
-                    statusBadge = '<span class="badge badge-danger">ممتلئ / Full</span>';
+                    statusBadge = '<span class="badge badge-danger">Full</span>';
                 } else if (percentFull > 80) {
-                    statusBadge = '<span class="badge badge-warning">شبه ممتلئ / Almost Full</span>';
+                    statusBadge = '<span class="badge badge-warning">Almost Full</span>';
                 } else {
-                    statusBadge = '<span class="badge badge-success">متاح / Available</span>';
+                    statusBadge = '<span class="badge badge-success">Available</span>';
                 }
 
                 tableHTML += `
@@ -536,7 +555,7 @@
                         <td><strong>${workshop.name}</strong></td>
                         <td>${workshop.capacity}</td>
                         <td>${workshop.registered}</td>
-                        <td>${statusBadge} (${spotsLeft} مقاعد متبقية)</td>
+                        <td>${statusBadge} (${spotsLeft} spots left)</td>
                     </tr>
                 `;
             });
@@ -574,12 +593,12 @@
             if (!file) return;
             
             if (!file.name.match(/\.(xlsx|xls)$/)) {
-                showMessage('الرجاء اختيار ملف Excel (.xlsx أو .xls) / Please select an Excel file', 'error');
+                showMessage('Please select an Excel file (.xlsx or .xls)', 'error');
                 return;
             }
 
             selectedFile = file;
-            document.getElementById('fileName').textContent = `تم اختيار: ${file.name}`;
+            document.getElementById('fileName').textContent = `Selected: ${file.name}`;
             
             // Parse the file to show capacity inputs
             try {
@@ -587,7 +606,7 @@
                 showCapacityInputs(parsedData);
                 importBtn.disabled = false;
             } catch (error) {
-                showMessage('خطأ في قراءة الملف / Error reading file: ' + error.message, 'error');
+                showMessage('Error reading file: ' + error.message, 'error');
             }
         }
 
@@ -614,7 +633,7 @@
                 input.type = 'number';
                 input.min = '1';
                 input.value = '30';
-                input.placeholder = 'السعة / Capacity';
+                input.placeholder = 'Capacity';
                 input.dataset.workshop = workshopName;
                 
                 input.addEventListener('input', (e) => {
@@ -636,7 +655,7 @@
             if (!parsedData) return;
 
             importBtn.disabled = true;
-            importBtn.innerHTML = '<span class="loading"></span>جاري الاستيراد... / Importing...';
+            importBtn.innerHTML = '<span class="loading"></span>Importing...';
 
             try {
                 const response = await fetch('/api/admin/import', {
@@ -663,10 +682,10 @@
                     showMessage(result.message, 'error');
                 }
             } catch (error) {
-                showMessage('خطأ في استيراد الملف / Error importing file: ' + error.message, 'error');
+                showMessage('Error importing file: ' + error.message, 'error');
             } finally {
                 importBtn.disabled = false;
-                importBtn.innerHTML = 'استيراد البيانات';
+                importBtn.innerHTML = 'Import Data';
             }
         });
 
@@ -685,7 +704,7 @@
                         const jsonData = XLSX.utils.sheet_to_json(firstSheet);
                         
                         if (jsonData.length === 0) {
-                            reject(new Error('الملف فارغ / File is empty'));
+                            reject(new Error('File is empty'));
                             return;
                         }
                         
@@ -695,14 +714,14 @@
                     }
                 };
                 
-                reader.onerror = () => reject(new Error('فشل قراءة الملف / Failed to read file'));
+                reader.onerror = () => reject(new Error('Failed to read file'));
                 reader.readAsArrayBuffer(file);
             });
         }
 
         // Clear registrations
         async function clearRegistrations() {
-            if (!confirm('هل أنت متأكد من مسح جميع التسجيلات؟ لا يمكن التراجع عن هذا الإجراء.\nAre you sure you want to clear all registrations? This cannot be undone.')) {
+            if (!confirm('Are you sure you want to clear all registrations? This cannot be undone.')) {
                 return;
             }
 
@@ -718,10 +737,10 @@
                     await loadStats();
                     await loadRegistrations();
                 } else {
-                    showMessage('خطأ في مسح التسجيلات / Error clearing registrations', 'error');
+                    showMessage('Error clearing registrations', 'error');
                 }
             } catch (error) {
-                showMessage('خطأ / Error: ' + error.message, 'error');
+                showMessage('Error: ' + error.message, 'error');
             }
         }
 
