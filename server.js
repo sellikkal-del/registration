@@ -170,53 +170,109 @@ app.get('/api/admin/registrations', (req, res) => {
 
 // Admin: Import Excel data
 app.post('/api/admin/import', (req, res) => {
-  const { data, workshopCapacities } = req.body;
+  const { data, workshopCapacities, workshopsData, attendeesData } = req.body;
   
   try {
     const db = readDB();
     
-    // Extract workshop names from column headers (skip Name and Email columns)
-    const workshopColumns = Object.keys(data[0] || {}).filter(col => 
-      col !== 'Name' && col !== 'Email'
-    );
+    // Method 1: Single file with auto-detected workshops
+    if (data && workshopCapacities) {
+      // Extract workshop names from column headers (skip Name and Email columns)
+      const workshopColumns = Object.keys(data[0] || {}).filter(col => 
+        col !== 'Name' && col !== 'Email'
+      );
+      
+      // Create workshops from column headers with provided capacities
+      const workshops = workshopColumns.map((workshopName, index) => ({
+        id: `workshop_${index + 1}`,
+        name: workshopName.replace(/\n/g, ' '), // Replace newlines with spaces
+        description: '',
+        capacity: parseInt(workshopCapacities[workshopName]) || 30
+      }));
+
+      // Process attendees - each row is one attendee
+      const attendees = data.map((row, index) => {
+        // Find which workshops this attendee can choose (where value is "Yes")
+        const workshopOptions = workshopColumns
+          .filter((col) => {
+            const value = row[col];
+            return value === 'Yes' || value === 'yes' || value === 'YES';
+          })
+          .map((col) => {
+            const workshopIndex = workshopColumns.indexOf(col);
+            return `workshop_${workshopIndex + 1}`;
+          });
+
+        return {
+          id: `attendee_${index + 1}`,
+          email: (row.Email || '').toLowerCase().trim(),
+          name: row.Name || '',
+          workshopOptions: workshopOptions
+        };
+      }).filter(a => a.email); // Only include rows with email
+
+      db.workshops = workshops;
+      db.attendees = attendees;
+      writeDB(db);
+
+      return res.json({ 
+        success: true, 
+        message: `Imported ${attendees.length} attendees and ${workshops.length} workshops.` 
+      });
+    }
     
-    // Create workshops from column headers with provided capacities
-    const workshops = workshopColumns.map((workshopName, index) => ({
-      id: `workshop_${index + 1}`,
-      name: workshopName.replace(/\n/g, ' '), // Replace newlines with spaces
-      description: '',
-      capacity: parseInt(workshopCapacities[workshopName]) || 30
-    }));
+    // Method 2: Separate files - Workshops only
+    if (workshopsData && workshopsData.length > 0 && (!attendeesData || attendeesData.length === 0)) {
+      const workshops = workshopsData.map((w, index) => ({
+        id: w.id || `workshop_${index + 1}`,
+        name: w.name,
+        description: w.description || '',
+        capacity: parseInt(w.capacity) || 30
+      }));
 
-    // Process attendees - each row is one attendee
-    const attendees = data.map((row, index) => {
-      // Find which workshops this attendee can choose (where value is "Yes")
-      const workshopOptions = workshopColumns
-        .filter((col, colIndex) => {
-          const value = row[col];
-          return value === 'Yes' || value === 'yes' || value === 'YES';
-        })
-        .map((col, colIndex) => {
-          const workshopIndex = workshopColumns.indexOf(col);
-          return `workshop_${workshopIndex + 1}`;
-        });
+      db.workshops = workshops;
+      writeDB(db);
 
-      return {
-        id: `attendee_${index + 1}`,
-        email: (row.Email || '').toLowerCase().trim(),
-        name: row.Name || '',
-        workshopOptions: workshopOptions
-      };
-    }).filter(a => a.email); // Only include rows with email
+      return res.json({ 
+        success: true, 
+        message: `Imported ${workshops.length} workshops.` 
+      });
+    }
+    
+    // Method 2: Separate files - Attendees only
+    if (attendeesData && attendeesData.length > 0) {
+      const attendees = attendeesData.map((a, index) => {
+        // Parse workshop options - can be comma-separated or array
+        let workshopOptions = [];
+        if (typeof a.workshopOptions === 'string') {
+          workshopOptions = a.workshopOptions.split(',').map(s => s.trim());
+        } else if (Array.isArray(a.workshopOptions)) {
+          workshopOptions = a.workshopOptions;
+        }
 
-    db.workshops = workshops;
-    db.attendees = attendees;
-    writeDB(db);
+        return {
+          id: a.id || `attendee_${index + 1}`,
+          email: (a.email || '').toLowerCase().trim(),
+          name: a.name || '',
+          workshopOptions: workshopOptions
+        };
+      }).filter(a => a.email);
 
-    res.json({ 
-      success: true, 
-      message: `Imported ${attendees.length} attendees and ${workshops.length} workshops.` 
+      // Keep existing workshops, only update attendees
+      db.attendees = attendees;
+      writeDB(db);
+
+      return res.json({ 
+        success: true, 
+        message: `Imported ${attendees.length} attendees.` 
+      });
+    }
+    
+    return res.json({ 
+      success: false, 
+      message: 'Invalid import data format.' 
     });
+    
   } catch (error) {
     res.json({ 
       success: false, 
