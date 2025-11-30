@@ -1,7 +1,7 @@
 services:
   - type: web
     name: workshop-registration
-    env: node
+    runtime: node
     buildCommand: npm install
     startCommand: node server.js
     envVars:

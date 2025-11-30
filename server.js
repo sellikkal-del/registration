@@ -170,36 +170,44 @@ app.get('/api/admin/registrations', (req, res) => {
 
 // Admin: Import Excel data
 app.post('/api/admin/import', (req, res) => {
-  const { attendeesData, workshopsData } = req.body;
+  const { data, workshopCapacities } = req.body;
   
   try {
     const db = readDB();
     
-    // Process workshops
-    const workshops = workshopsData.map((w, index) => ({
-      id: w.id || `workshop_${index + 1}`,
-      name: w.name,
-      description: w.description || '',
-      capacity: parseInt(w.capacity) || 30
+    // Extract workshop names from column headers (skip Name and Email columns)
+    const workshopColumns = Object.keys(data[0] || {}).filter(col => 
+      col !== 'Name' && col !== 'Email'
+    );
+    
+    // Create workshops from column headers with provided capacities
+    const workshops = workshopColumns.map((workshopName, index) => ({
+      id: `workshop_${index + 1}`,
+      name: workshopName.replace(/\n/g, ' '), // Replace newlines with spaces
+      description: '',
+      capacity: parseInt(workshopCapacities[workshopName]) || 30
     }));
 
-    // Process attendees
-    const attendees = attendeesData.map((a, index) => {
-      // Parse workshop options - can be comma-separated or array
-      let workshopOptions = [];
-      if (typeof a.workshopOptions === 'string') {
-        workshopOptions = a.workshopOptions.split(',').map(s => s.trim());
-      } else if (Array.isArray(a.workshopOptions)) {
-        workshopOptions = a.workshopOptions;
-      }
+    // Process attendees - each row is one attendee
+    const attendees = data.map((row, index) => {
+      // Find which workshops this attendee can choose (where value is "Yes")
+      const workshopOptions = workshopColumns
+        .filter((col, colIndex) => {
+          const value = row[col];
+          return value === 'Yes' || value === 'yes' || value === 'YES';
+        })
+        .map((col, colIndex) => {
+          const workshopIndex = workshopColumns.indexOf(col);
+          return `workshop_${workshopIndex + 1}`;
+        });
 
       return {
-        id: a.id || `attendee_${index + 1}`,
-        email: a.email.toLowerCase(),
-        name: a.name || '',
+        id: `attendee_${index + 1}`,
+        email: (row.Email || '').toLowerCase().trim(),
+        name: row.Name || '',
         workshopOptions: workshopOptions
       };
-    });
+    }).filter(a => a.email); // Only include rows with email
 
     db.workshops = workshops;
     db.attendees = attendees;

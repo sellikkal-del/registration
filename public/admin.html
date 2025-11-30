@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel - Workshop Registration</title>
+    <title>لوحة التحكم - وزارة المالية</title>
     <style>
         * {
             margin: 0;
@@ -12,13 +12,13 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: #f5f5f5;
             padding: 20px;
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
         }
 
@@ -28,11 +28,23 @@
             border-radius: 12px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .logo {
+            max-width: 150px;
+            height: auto;
+        }
+
+        .header-text {
+            flex-grow: 1;
         }
 
         h1 {
-            color: #333;
-            margin-bottom: 10px;
+            color: #0f6b4a;
+            margin-bottom: 5px;
         }
 
         .subtitle {
@@ -51,12 +63,13 @@
             padding: 20px;
             border-radius: 12px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border-right: 4px solid #0f6b4a;
         }
 
         .stat-value {
             font-size: 32px;
             font-weight: 700;
-            color: #667eea;
+            color: #0f6b4a;
             margin-bottom: 5px;
         }
 
@@ -74,7 +87,7 @@
         }
 
         .section h2 {
-            color: #333;
+            color: #0f6b4a;
             margin-bottom: 20px;
             font-size: 20px;
         }
@@ -88,8 +101,8 @@
         }
 
         .import-area.dragover {
-            border-color: #667eea;
-            background-color: #f8f9ff;
+            border-color: #0f6b4a;
+            background-color: #f0f8f5;
         }
 
         .file-input-wrapper {
@@ -112,13 +125,13 @@
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #0f6b4a 0%, #1a8f63 100%);
             color: white;
         }
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 5px 15px rgba(15, 107, 74, 0.4);
         }
 
         .btn-secondary {
@@ -153,16 +166,17 @@
         th {
             background-color: #f5f5f5;
             padding: 12px;
-            text-align: left;
+            text-align: right;
             font-weight: 600;
             color: #333;
-            border-bottom: 2px solid #e0e0e0;
+            border-bottom: 2px solid #0f6b4a;
         }
 
         td {
             padding: 12px;
             border-bottom: 1px solid #e0e0e0;
             color: #666;
+            text-align: right;
         }
 
         tr:hover {
@@ -247,8 +261,8 @@
         }
 
         .tab.active {
-            color: #667eea;
-            border-bottom-color: #667eea;
+            color: #0f6b4a;
+            border-bottom-color: #0f6b4a;
         }
 
         .tab-content {
@@ -259,27 +273,38 @@
             display: block;
         }
 
-        .template-section {
+        .capacity-input-section {
             background: #f9f9f9;
             padding: 20px;
             border-radius: 8px;
             margin-bottom: 20px;
+            display: none;
         }
 
-        .template-section h3 {
-            color: #333;
-            margin-bottom: 15px;
-            font-size: 16px;
+        .capacity-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
         }
 
-        .template-section pre {
-            background: white;
-            padding: 15px;
-            border-radius: 6px;
-            overflow-x: auto;
+        .capacity-item {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .capacity-item label {
             font-size: 13px;
-            line-height: 1.6;
-            border: 1px solid #e0e0e0;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .capacity-item input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
         }
 
         .button-group {
@@ -293,10 +318,10 @@
             width: 16px;
             height: 16px;
             border: 2px solid #f3f3f3;
-            border-top: 2px solid #667eea;
+            border-top: 2px solid #0f6b4a;
             border-radius: 50%;
             animation: spin 1s linear infinite;
-            margin-right: 8px;
+            margin-left: 8px;
         }
 
         @keyframes spin {
@@ -308,8 +333,11 @@
 <body>
     <div class="container">
         <header>
-            <h1>🎯 Workshop Registration Admin Panel</h1>
-            <p class="subtitle">Manage attendees, workshops, and registrations</p>
+            <img src="logo.png" alt="Ministry of Finance" class="logo">
+            <div class="header-text">
+                <h1>لوحة التحكم - تسجيل ورش العمل</h1>
+                <p class="subtitle">Workshop Registration Admin Panel</p>
+            </div>
         </header>
 
         <div class="stats-grid" id="statsGrid">
@@ -319,73 +347,64 @@
         <div id="messageArea"></div>
 
         <div class="section">
-            <h2>📋 Import Data from Excel</h2>
+            <h2>📋 استيراد البيانات من Excel</h2>
             
-            <div class="template-section">
-                <h3>Excel File Format Instructions</h3>
-                <p style="margin-bottom: 15px; color: #666;">Your Excel file should have two sheets: "Attendees" and "Workshops"</p>
-                
-                <div style="margin-bottom: 15px;">
-                    <strong>Attendees Sheet Columns:</strong>
-                    <pre>email | name | workshopOptions
-<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="e58f8a8d8ba5809d8488958980cb868a88">[email&#160;protected]</a> | John Doe | workshop_1,workshop_2
-<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="f69c979893b6938e979b869a93d895999b">[email&#160;protected]</a> | Jane Smith | workshop_1,workshop_3</pre>
-                </div>
-
-                <div>
-                    <strong>Workshops Sheet Columns:</strong>
-                    <pre>id | name | description | capacity
-workshop_1 | Web Development | Learn HTML, CSS, JS | 30
-workshop_2 | Data Science | Python and ML | 25</pre>
-                </div>
-            </div>
-
             <div class="import-area" id="importArea">
                 <div style="font-size: 48px; margin-bottom: 16px;">📁</div>
-                <p style="color: #666; margin-bottom: 16px;">Drag and drop your Excel file here, or click to browse</p>
+                <p style="color: #666; margin-bottom: 16px;">اسحب وأفلت ملف Excel هنا، أو انقر لتصفح</p>
+                <p style="color: #999; font-size: 13px; margin-bottom: 16px;">
+                    الملف يجب أن يحتوي على: Name, Email وأعمدة ورش العمل مع "Yes" للخيارات المتاحة
+                </p>
                 <div class="file-input-wrapper">
-                    <label for="fileInput" class="btn btn-primary">Choose Excel File</label>
+                    <label for="fileInput" class="btn btn-primary">اختر ملف Excel</label>
                     <input type="file" id="fileInput" accept=".xlsx,.xls">
                 </div>
-                <div id="fileName" style="margin-top: 16px; color: #667eea; font-weight: 600;"></div>
+                <div id="fileName" style="margin-top: 16px; color: #0f6b4a; font-weight: 600;"></div>
+            </div>
+
+            <div class="capacity-input-section" id="capacitySection">
+                <h3 style="color: #0f6b4a; margin-bottom: 15px;">تحديد سعة كل ورشة عمل</h3>
+                <p style="color: #666; margin-bottom: 15px; font-size: 14px;">
+                    حدد الحد الأقصى للمشاركين لكل ورشة عمل
+                </p>
+                <div class="capacity-grid" id="capacityGrid"></div>
             </div>
 
             <div class="button-group">
                 <button class="btn btn-primary" id="importBtn" disabled>
-                    Import Data
-                </button>
-                <button class="btn btn-secondary" onclick="downloadTemplate()">
-                    Download Template
+                    استيراد البيانات
                 </button>
             </div>
         </div>
 
         <div class="section">
             <div class="tabs">
-                <button class="tab active" onclick="switchTab('registrations')">Registrations</button>
-                <button class="tab" onclick="switchTab('workshops')">Workshops</button>
+                <button class="tab active" onclick="switchTab('registrations')">التسجيلات</button>
+                <button class="tab" onclick="switchTab('workshops')">ورش العمل</button>
             </div>
 
             <div id="registrationsTab" class="tab-content active">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h2 style="margin: 0;">👥 Registration List</h2>
+                    <h2 style="margin: 0;">👥 قائمة المسجلين</h2>
                     <button class="btn btn-danger btn-small" onclick="clearRegistrations()">
-                        Clear All Registrations
+                        مسح جميع التسجيلات
                     </button>
                 </div>
                 <div id="registrationsTable"></div>
             </div>
 
             <div id="workshopsTab" class="tab-content">
-                <h2>🎓 Workshop Overview</h2>
+                <h2>🎓 نظرة عامة على ورش العمل</h2>
                 <div id="workshopsTable"></div>
             </div>
         </div>
     </div>
 
-    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script>
         let selectedFile = null;
+        let parsedData = null;
+        let workshopCapacities = {};
 
         // Load stats
         async function loadStats() {
@@ -398,19 +417,19 @@ workshop_2 | Data Science | Python and ML | 25</pre>
                     statsGrid.innerHTML = `
                         <div class="stat-card">
                             <div class="stat-value">${data.stats.totalAttendees}</div>
-                            <div class="stat-label">Total Attendees</div>
+                            <div class="stat-label">إجمالي الحضور / Total Attendees</div>
                         </div>
                         <div class="stat-card">
                             <div class="stat-value">${data.stats.totalWorkshops}</div>
-                            <div class="stat-label">Total Workshops</div>
+                            <div class="stat-label">ورش العمل / Workshops</div>
                         </div>
                         <div class="stat-card">
                             <div class="stat-value">${data.stats.totalRegistrations}</div>
-                            <div class="stat-label">Registrations</div>
+                            <div class="stat-label">التسجيلات / Registrations</div>
                         </div>
                         <div class="stat-card">
                             <div class="stat-value">${data.stats.registrationRate}%</div>
-                            <div class="stat-label">Registration Rate</div>
+                            <div class="stat-label">معدل التسجيل / Registration Rate</div>
                         </div>
                     `;
                 }
@@ -432,7 +451,7 @@ workshop_2 | Data Science | Python and ML | 25</pre>
                         registrationsTable.innerHTML = `
                             <div class="empty-state">
                                 <div class="empty-state-icon">📭</div>
-                                <p>No registrations yet</p>
+                                <p>لا توجد تسجيلات بعد / No registrations yet</p>
                             </div>
                         `;
                         return;
@@ -442,16 +461,16 @@ workshop_2 | Data Science | Python and ML | 25</pre>
                         <table>
                             <thead>
                                 <tr>
-                                    <th>Email</th>
-                                    <th>Workshop</th>
-                                    <th>Registered At</th>
+                                    <th>البريد الإلكتروني / Email</th>
+                                    <th>ورشة العمل / Workshop</th>
+                                    <th>تاريخ التسجيل / Registered At</th>
                                 </tr>
                             </thead>
                             <tbody>
                     `;
 
                     data.registrations.forEach(reg => {
-                        const date = new Date(reg.registeredAt).toLocaleString();
+                        const date = new Date(reg.registeredAt).toLocaleString('ar-SA');
                         tableHTML += `
                             <tr>
                                 <td>${reg.email}</td>
@@ -480,7 +499,7 @@ workshop_2 | Data Science | Python and ML | 25</pre>
                 workshopsTable.innerHTML = `
                     <div class="empty-state">
                         <div class="empty-state-icon">📚</div>
-                        <p>No workshops configured. Please import data.</p>
+                        <p>لا توجد ورش عمل. الرجاء استيراد البيانات / No workshops. Please import data.</p>
                     </div>
                 `;
                 return;
@@ -490,11 +509,10 @@ workshop_2 | Data Science | Python and ML | 25</pre>
                 <table>
                     <thead>
                         <tr>
-                            <th>Workshop Name</th>
-                            <th>Description</th>
-                            <th>Capacity</th>
-                            <th>Registered</th>
-                            <th>Availability</th>
+                            <th>اسم ورشة العمل / Workshop Name</th>
+                            <th>السعة / Capacity</th>
+                            <th>المسجلون / Registered</th>
+                            <th>الحالة / Status</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -506,20 +524,19 @@ workshop_2 | Data Science | Python and ML | 25</pre>
                 let statusBadge;
                 
                 if (spotsLeft === 0) {
-                    statusBadge = '<span class="badge badge-danger">Full</span>';
+                    statusBadge = '<span class="badge badge-danger">ممتلئ / Full</span>';
                 } else if (percentFull > 80) {
-                    statusBadge = '<span class="badge badge-warning">Almost Full</span>';
+                    statusBadge = '<span class="badge badge-warning">شبه ممتلئ / Almost Full</span>';
                 } else {
-                    statusBadge = '<span class="badge badge-success">Available</span>';
+                    statusBadge = '<span class="badge badge-success">متاح / Available</span>';
                 }
 
                 tableHTML += `
                     <tr>
                         <td><strong>${workshop.name}</strong></td>
-                        <td>${workshop.description || '-'}</td>
                         <td>${workshop.capacity}</td>
                         <td>${workshop.registered}</td>
-                        <td>${statusBadge} (${spotsLeft} spots left)</td>
+                        <td>${statusBadge} (${spotsLeft} مقاعد متبقية)</td>
                     </tr>
                 `;
             });
@@ -553,33 +570,82 @@ workshop_2 | Data Science | Python and ML | 25</pre>
             handleFile(e.dataTransfer.files[0]);
         });
 
-        function handleFile(file) {
+        async function handleFile(file) {
             if (!file) return;
             
             if (!file.name.match(/\.(xlsx|xls)$/)) {
-                showMessage('Please select an Excel file (.xlsx or .xls)', 'error');
+                showMessage('الرجاء اختيار ملف Excel (.xlsx أو .xls) / Please select an Excel file', 'error');
                 return;
             }
 
             selectedFile = file;
-            document.getElementById('fileName').textContent = `Selected: ${file.name}`;
-            importBtn.disabled = false;
+            document.getElementById('fileName').textContent = `تم اختيار: ${file.name}`;
+            
+            // Parse the file to show capacity inputs
+            try {
+                parsedData = await readExcelFile(file);
+                showCapacityInputs(parsedData);
+                importBtn.disabled = false;
+            } catch (error) {
+                showMessage('خطأ في قراءة الملف / Error reading file: ' + error.message, 'error');
+            }
+        }
+
+        function showCapacityInputs(data) {
+            const capacitySection = document.getElementById('capacitySection');
+            const capacityGrid = document.getElementById('capacityGrid');
+            
+            // Get workshop columns (exclude Name and Email)
+            const workshopColumns = Object.keys(data[0] || {}).filter(col => 
+                col !== 'Name' && col !== 'Email'
+            );
+            
+            capacityGrid.innerHTML = '';
+            workshopCapacities = {};
+            
+            workshopColumns.forEach((workshopName, index) => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'capacity-item';
+                
+                const label = document.createElement('label');
+                label.textContent = workshopName.replace(/\n/g, ' ');
+                
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.min = '1';
+                input.value = '30';
+                input.placeholder = 'السعة / Capacity';
+                input.dataset.workshop = workshopName;
+                
+                input.addEventListener('input', (e) => {
+                    workshopCapacities[workshopName] = parseInt(e.target.value) || 30;
+                });
+                
+                workshopCapacities[workshopName] = 30; // Default
+                
+                itemDiv.appendChild(label);
+                itemDiv.appendChild(input);
+                capacityGrid.appendChild(itemDiv);
+            });
+            
+            capacitySection.style.display = 'block';
         }
 
         // Import button
         importBtn.addEventListener('click', async () => {
-            if (!selectedFile) return;
+            if (!parsedData) return;
 
             importBtn.disabled = true;
-            importBtn.innerHTML = '<span class="loading"></span>Importing...';
+            importBtn.innerHTML = '<span class="loading"></span>جاري الاستيراد... / Importing...';
 
             try {
-                const data = await readExcelFile(selectedFile);
-                
                 const response = await fetch('/api/admin/import', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
+                    body: JSON.stringify({ 
+                        data: parsedData,
+                        workshopCapacities: workshopCapacities
+                    })
                 });
 
                 const result = await response.json();
@@ -589,16 +655,18 @@ workshop_2 | Data Science | Python and ML | 25</pre>
                     await loadStats();
                     await loadRegistrations();
                     selectedFile = null;
+                    parsedData = null;
                     document.getElementById('fileName').textContent = '';
+                    document.getElementById('capacitySection').style.display = 'none';
                     fileInput.value = '';
                 } else {
                     showMessage(result.message, 'error');
                 }
             } catch (error) {
-                showMessage('Error importing file: ' + error.message, 'error');
+                showMessage('خطأ في استيراد الملف / Error importing file: ' + error.message, 'error');
             } finally {
                 importBtn.disabled = false;
-                importBtn.innerHTML = 'Import Data';
+                importBtn.innerHTML = 'استيراد البيانات';
             }
         });
 
@@ -612,61 +680,29 @@ workshop_2 | Data Science | Python and ML | 25</pre>
                         const data = new Uint8Array(e.target.result);
                         const workbook = XLSX.read(data, { type: 'array' });
                         
-                        // Read Attendees sheet
-                        const attendeesSheet = workbook.Sheets['Attendees'];
-                        if (!attendeesSheet) {
-                            reject(new Error('Attendees sheet not found'));
+                        // Read first sheet
+                        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                        const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+                        
+                        if (jsonData.length === 0) {
+                            reject(new Error('الملف فارغ / File is empty'));
                             return;
                         }
-                        const attendeesData = XLSX.utils.sheet_to_json(attendeesSheet);
                         
-                        // Read Workshops sheet
-                        const workshopsSheet = workbook.Sheets['Workshops'];
-                        if (!workshopsSheet) {
-                            reject(new Error('Workshops sheet not found'));
-                            return;
-                        }
-                        const workshopsData = XLSX.utils.sheet_to_json(workshopsSheet);
-                        
-                        resolve({ attendeesData, workshopsData });
+                        resolve(jsonData);
                     } catch (error) {
                         reject(error);
                     }
                 };
                 
-                reader.onerror = () => reject(new Error('Failed to read file'));
+                reader.onerror = () => reject(new Error('فشل قراءة الملف / Failed to read file'));
                 reader.readAsArrayBuffer(file);
             });
         }
 
-        // Download template
-        function downloadTemplate() {
-            const wb = XLSX.utils.book_new();
-            
-            // Attendees sheet
-            const attendeesData = [
-                { email: 'john@example.com', name: 'John Doe', workshopOptions: 'workshop_1,workshop_2' },
-                { email: 'jane@example.com', name: 'Jane Smith', workshopOptions: 'workshop_1,workshop_3' },
-                { email: 'bob@example.com', name: 'Bob Johnson', workshopOptions: 'workshop_2,workshop_3' }
-            ];
-            const attendeesSheet = XLSX.utils.json_to_sheet(attendeesData);
-            XLSX.utils.book_append_sheet(wb, attendeesSheet, 'Attendees');
-            
-            // Workshops sheet
-            const workshopsData = [
-                { id: 'workshop_1', name: 'Web Development Basics', description: 'Learn HTML, CSS, and JavaScript', capacity: 30 },
-                { id: 'workshop_2', name: 'Data Science with Python', description: 'Introduction to Python and Machine Learning', capacity: 25 },
-                { id: 'workshop_3', name: 'UI/UX Design', description: 'Design principles and Figma basics', capacity: 20 }
-            ];
-            const workshopsSheet = XLSX.utils.json_to_sheet(workshopsData);
-            XLSX.utils.book_append_sheet(wb, workshopsSheet, 'Workshops');
-            
-            XLSX.writeFile(wb, 'workshop-registration-template.xlsx');
-        }
-
         // Clear registrations
         async function clearRegistrations() {
-            if (!confirm('Are you sure you want to clear all registrations? This cannot be undone.')) {
+            if (!confirm('هل أنت متأكد من مسح جميع التسجيلات؟ لا يمكن التراجع عن هذا الإجراء.\nAre you sure you want to clear all registrations? This cannot be undone.')) {
                 return;
             }
 
@@ -682,10 +718,10 @@ workshop_2 | Data Science | Python and ML | 25</pre>
                     await loadStats();
                     await loadRegistrations();
                 } else {
-                    showMessage('Error clearing registrations', 'error');
+                    showMessage('خطأ في مسح التسجيلات / Error clearing registrations', 'error');
                 }
             } catch (error) {
-                showMessage('Error: ' + error.message, 'error');
+                showMessage('خطأ / Error: ' + error.message, 'error');
             }
         }
 
@@ -703,4 +739,19 @@ workshop_2 | Data Science | Python and ML | 25</pre>
             document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
             
-            event.target.classList.add('acti
+            event.target.classList.add('active');
+            document.getElementById(tabName + 'Tab').classList.add('active');
+        }
+
+        // Initial load
+        loadStats();
+        loadRegistrations();
+
+        // Auto-refresh every 30 seconds
+        setInterval(() => {
+            loadStats();
+            loadRegistrations();
+        }, 30000);
+    </script>
+</body>
+</html>

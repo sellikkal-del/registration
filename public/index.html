@@ -1,9 +1,502 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Workshop Registration</title>
+    <title>تسجيل ورشة العمل - وزارة المالية</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f6b4a 0%, #1a8f63 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 700px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #0f6b4a;
+        }
+
+        .logo {
+            max-width: 200px;
+            height: auto;
+            margin-bottom: 15px;
+        }
+
+        h1 {
+            color: #0f6b4a;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .step {
+            display: none;
+        }
+
+        .step.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+            font-size: 15px;
+        }
+
+        input[type="email"], input[type="text"] {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+            direction: ltr;
+            text-align: left;
+        }
+
+        input[type="email"]:focus, input[type="text"]:focus {
+            outline: none;
+            border-color: #0f6b4a;
+        }
+
+        .workshop-option {
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .workshop-option:hover {
+            border-color: #0f6b4a;
+            background-color: #f0f8f5;
+        }
+
+        .workshop-option input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+        }
+
+        .workshop-option.selected {
+            border-color: #0f6b4a;
+            background-color: #f0f8f5;
+        }
+
+        .workshop-option.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background-color: #f5f5f5;
+        }
+
+        .workshop-option.disabled:hover {
+            border-color: #e0e0e0;
+            background-color: #f5f5f5;
+        }
+
+        .workshop-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .radio-circle {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #ccc;
+            border-radius: 50%;
+            margin-left: 12px;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .workshop-option.selected .radio-circle {
+            border-color: #0f6b4a;
+        }
+
+        .workshop-option.selected .radio-circle::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 10px;
+            height: 10px;
+            background-color: #0f6b4a;
+            border-radius: 50%;
+        }
+
+        .workshop-name {
+            font-weight: 600;
+            color: #333;
+            font-size: 15px;
+            flex-grow: 1;
+            line-height: 1.5;
+        }
+
+        .workshop-capacity {
+            font-size: 12px;
+            color: #666;
+            background-color: #e8f5f1;
+            padding: 4px 10px;
+            border-radius: 12px;
+            margin-right: 8px;
+            white-space: nowrap;
+        }
+
+        .workshop-capacity.full {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #0f6b4a 0%, #1a8f63 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(15, 107, 74, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .back-button {
+            background: #f5f5f5;
+            color: #333;
+            margin-top: 12px;
+        }
+
+        .back-button:hover {
+            background: #e0e0e0;
+            box-shadow: none;
+        }
+
+        .message {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .message.error {
+            background-color: #ffebee;
+            color: #c62828;
+            border: 1px solid #ef5350;
+        }
+
+        .message.success {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #66bb6a;
+        }
+
+        .message.info {
+            background-color: #e3f2fd;
+            color: #1565c0;
+            border: 1px solid #42a5f5;
+        }
+
+        .success-icon {
+            font-size: 48px;
+            color: #0f6b4a;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .success-message {
+            text-align: center;
+        }
+
+        .success-message h2 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .success-message p {
+            color: #666;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #0f6b4a;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 8px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="logo.png" alt="Ministry of Finance" class="logo">
+            <h1>تسجيل ورشة العمل</h1>
+            <p class="subtitle">Workshop Registration</p>
+        </div>
+
+        <!-- Step 1: Email Entry -->
+        <div id="step1" class="step active">
+            <p class="subtitle">أدخل بريدك الإلكتروني لعرض ورش العمل المتاحة</p>
+            
+            <div id="emailMessage"></div>
+            
+            <form id="emailForm">
+                <div class="form-group">
+                    <label for="email">البريد الإلكتروني / Email Address</label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        name="email" 
+                        placeholder="your.email@example.com"
+                        required
+                    >
+                </div>
+                <button type="submit" id="emailSubmitBtn">
+                    متابعة / Continue
+                </button>
+            </form>
+        </div>
+
+        <!-- Step 2: Workshop Selection -->
+        <div id="step2" class="step">
+            <p class="subtitle">اختر ورشة عمل واحدة للحضور</p>
+            
+            <div id="workshopMessage"></div>
+            
+            <form id="workshopForm">
+                <div id="workshopsList" class="form-group">
+                    <!-- Workshops will be loaded here -->
+                </div>
+                <button type="submit" id="workshopSubmitBtn" disabled>
+                    تسجيل / Register
+                </button>
+                <button type="button" class="back-button" onclick="goToStep(1)">
+                    رجوع / Back
+                </button>
+            </form>
+        </div>
+
+        <!-- Step 3: Success -->
+        <div id="step3" class="step">
+            <div class="success-icon">✓</div>
+            <div class="success-message">
+                <h2>تم التسجيل بنجاح!</h2>
+                <h2>Registration Successful!</h2>
+                <p id="successDetails"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentEmail = '';
+        let selectedWorkshopId = null;
+
+        // Show message
+        function showMessage(elementId, message, type) {
+            const messageEl = document.getElementById(elementId);
+            messageEl.innerHTML = `<div class="message ${type}">${message}</div>`;
+        }
+
+        // Clear message
+        function clearMessage(elementId) {
+            document.getElementById(elementId).innerHTML = '';
+        }
+
+        // Go to step
+        function goToStep(stepNumber) {
+            document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
+            document.getElementById(`step${stepNumber}`).classList.add('active');
+        }
+
+        // Email form submission
+        document.getElementById('emailForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value.trim();
+            const submitBtn = document.getElementById('emailSubmitBtn');
+            
+            clearMessage('emailMessage');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="loading"></span>جاري التحقق... / Checking...';
+            
+            try {
+                const response = await fetch('/api/check-email', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentEmail = email;
+                    loadWorkshops(data.workshops);
+                    goToStep(2);
+                } else {
+                    showMessage('emailMessage', data.message, 'error');
+                }
+            } catch (error) {
+                showMessage('emailMessage', 'خطأ في الاتصال بالخادم / Error connecting to server', 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'متابعة / Continue';
+            }
+        });
+
+        // Load workshops
+        function loadWorkshops(workshops) {
+            const workshopsList = document.getElementById('workshopsList');
+            workshopsList.innerHTML = '';
+            
+            if (workshops.length === 0) {
+                workshopsList.innerHTML = '<div class="message info">لا توجد ورش عمل متاحة حالياً<br>No workshops are currently available</div>';
+                return;
+            }
+            
+            workshops.forEach(workshop => {
+                const isDisabled = !workshop.available;
+                const optionDiv = document.createElement('div');
+                optionDiv.className = `workshop-option ${isDisabled ? 'disabled' : ''}`;
+                optionDiv.dataset.workshopId = workshop.id;
+                
+                optionDiv.innerHTML = `
+                    <input type="radio" name="workshop" value="${workshop.id}" ${isDisabled ? 'disabled' : ''}>
+                    <div class="workshop-header">
+                        <div class="radio-circle"></div>
+                        <div class="workshop-name">${workshop.name}</div>
+                        <span class="workshop-capacity ${isDisabled ? 'full' : ''}">
+                            ${workshop.spotsLeft} ${workshop.spotsLeft === 1 ? 'مقعد متبقي' : 'مقاعد متبقية'}
+                        </span>
+                    </div>
+                `;
+                
+                if (!isDisabled) {
+                    optionDiv.addEventListener('click', () => selectWorkshop(workshop.id));
+                }
+                
+                workshopsList.appendChild(optionDiv);
+            });
+        }
+
+        // Select workshop
+        function selectWorkshop(workshopId) {
+            selectedWorkshopId = workshopId;
+            
+            // Update UI
+            document.querySelectorAll('.workshop-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            const selectedOption = document.querySelector(`.workshop-option[data-workshop-id="${workshopId}"]`);
+            if (selectedOption) {
+                selectedOption.classList.add('selected');
+            }
+            
+            // Enable submit button
+            document.getElementById('workshopSubmitBtn').disabled = false;
+        }
+
+        // Workshop form submission
+        document.getElementById('workshopForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (!selectedWorkshopId) {
+                showMessage('workshopMessage', 'الرجاء اختيار ورشة عمل / Please select a workshop', 'error');
+                return;
+            }
+            
+            const submitBtn = document.getElementById('workshopSubmitBtn');
+            clearMessage('workshopMessage');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="loading"></span>جاري التسجيل... / Registering...';
+            
+            try {
+                const response = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        email: currentEmail, 
+                        workshopId: selectedWorkshopId 
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('successDetails').textContent = data.workshop;
+                    goToStep(3);
+                } else {
+                    showMessage('workshopMessage', data.message, 'error');
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = 'تسجيل / Register';
+                }
+            } catch (error) {
+                showMessage('workshopMessage', 'خطأ في إرسال التسجيل / Error submitting registration', 'error');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'تسجيل / Register';
+            }
+        });
+    </script>
+</body>
+</html>
     <style>
         * {
             margin: 0;
