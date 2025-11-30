@@ -400,10 +400,11 @@
 
         .import-section {
             display: none;
+            margin-top: 20px;
         }
 
         .import-section.active {
-            display: block;
+            display: block !important;
         }
 
         .sample-format {
@@ -591,12 +592,25 @@ workshop_2      | Board Readiness - Arabic    | تعلم الحوكمة         
         function selectMethod(method) {
             selectedMethod = method;
             
-            // Update UI
+            // Update UI - remove active from all cards and sections
             document.querySelectorAll('.method-card').forEach(card => card.classList.remove('active'));
-            document.querySelectorAll('.import-section').forEach(section => section.classList.remove('active'));
+            document.querySelectorAll('.import-section').forEach(section => {
+                section.classList.remove('active');
+                section.style.display = 'none';
+            });
             
-            document.getElementById('method' + (method === 'all' ? 'All' : 'Separate')).classList.add('active');
-            document.getElementById('section' + (method === 'all' ? 'All' : 'Separate')).classList.add('active');
+            // Activate selected method
+            if (method === 'all') {
+                document.getElementById('methodAll').classList.add('active');
+                const section = document.getElementById('sectionAll');
+                section.classList.add('active');
+                section.style.display = 'block';
+            } else if (method === 'separate') {
+                document.getElementById('methodSeparate').classList.add('active');
+                const section = document.getElementById('sectionSeparate');
+                section.classList.add('active');
+                section.style.display = 'block';
+            }
         }
 
         // Load stats
