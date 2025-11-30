@@ -174,18 +174,9 @@
             color: white;
         }
 
-        .btn-primary:hover {
+        .btn-primary:hover:not(:disabled) {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(15, 107, 74, 0.4);
-        }
-
-        .btn-secondary {
-            background: #f5f5f5;
-            color: #333;
-        }
-
-        .btn-secondary:hover {
-            background: #e0e0e0;
         }
 
         .btn-danger {
@@ -200,6 +191,11 @@
         .btn-small {
             padding: 8px 16px;
             font-size: 12px;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
 
         table {
@@ -389,39 +385,13 @@
             margin: 0;
         }
 
-        .info-box ul {
-            margin: 10px 0 0 20px;
-            color: #1565c0;
-        }
-
-        .info-box li {
-            margin: 5px 0;
-        }
-
         .import-section {
             display: none;
             margin-top: 20px;
         }
 
-        .import-section.active {
-            display: block !important;
-        }
-
-        .sample-format {
-            background: #f9f9f9;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 15px 0;
-            border: 1px solid #e0e0e0;
-        }
-
-        .sample-format pre {
-            margin: 10px 0 0 0;
-            padding: 10px;
-            background: white;
-            border-radius: 4px;
-            overflow-x: auto;
-            font-size: 13px;
+        .import-section.show {
+            display: block;
         }
     </style>
 </head>
@@ -445,7 +415,7 @@
             <h2>📋 Import Data</h2>
             
             <div class="import-methods">
-                <div class="method-card" id="methodAll" onclick="selectMethod('all')">
+                <div class="method-card" id="methodAll">
                     <div class="method-icon">📊</div>
                     <div class="method-title">Single File Import</div>
                     <div class="method-description">
@@ -453,7 +423,7 @@
                     </div>
                 </div>
 
-                <div class="method-card" id="methodSeparate" onclick="selectMethod('separate')">
+                <div class="method-card" id="methodSeparate">
                     <div class="method-icon">📁</div>
                     <div class="method-title">Separate Files Import</div>
                     <div class="method-description">
@@ -465,12 +435,7 @@
             <!-- Single File Import Section -->
             <div class="import-section" id="sectionAll">
                 <div class="info-box">
-                    <p><strong>Single File Format:</strong></p>
-                    <ul>
-                        <li>Columns: <code>Name</code>, <code>Email</code>, and workshop columns</li>
-                        <li>Mark "Yes" in workshop columns for available options</li>
-                        <li>Workshop capacity is set during import</li>
-                    </ul>
+                    <p><strong>Single File Format:</strong> Your Excel file should have columns: Name, Email, and workshop columns with "Yes" for available options.</p>
                 </div>
 
                 <div class="import-area" id="importAreaAll">
@@ -499,23 +464,12 @@
             <!-- Separate Files Import Section -->
             <div class="import-section" id="sectionSeparate">
                 <div class="info-box">
-                    <p><strong>Step 1:</strong> Import Workshops File</p>
-                    <ul>
-                        <li>Columns: <code>id</code>, <code>name</code>, <code>description</code>, <code>capacity</code></li>
-                        <li>Each row is one workshop with full details</li>
-                    </ul>
+                    <p><strong>Step 1:</strong> Import workshops file with columns: id, name, description, capacity</p>
                 </div>
 
-                <div class="sample-format">
-                    <strong>Example Workshops File:</strong>
-                    <pre>id              | name                        | description           | capacity
-workshop_1      | Board Readiness - English   | Learn governance      | 30
-workshop_2      | Board Readiness - Arabic    | تعلم الحوكمة          | 25</pre>
-                </div>
-
-                <div class="import-area" id="importAreaWorkshops">
+                <div class="import-area">
                     <div style="font-size: 48px; margin-bottom: 16px;">🎓</div>
-                    <p style="color: #666; margin-bottom: 16px;">Upload Workshops File First</p>
+                    <p style="color: #666; margin-bottom: 16px;">Upload Workshops File</p>
                     <div class="file-input-wrapper">
                         <label for="fileInputWorkshops" class="btn btn-primary">Choose Workshops File</label>
                         <input type="file" id="fileInputWorkshops" accept=".xlsx,.xls">
@@ -530,23 +484,12 @@ workshop_2      | Board Readiness - Arabic    | تعلم الحوكمة         
                 <hr style="margin: 30px 0; border: none; border-top: 2px solid #e0e0e0;">
 
                 <div class="info-box">
-                    <p><strong>Step 2:</strong> Import Attendees File</p>
-                    <ul>
-                        <li>Columns: <code>email</code>, <code>name</code>, <code>workshopOptions</code></li>
-                        <li>workshopOptions: Comma-separated workshop IDs</li>
-                    </ul>
+                    <p><strong>Step 2:</strong> Import attendees file with columns: email, name, workshopOptions (comma-separated IDs)</p>
                 </div>
 
-                <div class="sample-format">
-                    <strong>Example Attendees File:</strong>
-                    <pre>email                | name          | workshopOptions
-<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="3d575255537d58455c504d5158135e5250">[email&#160;protected]</a>     | John Doe      | workshop_1,workshop_2
-<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="f19b909f94b19489909c819d94df929e9c">[email&#160;protected]</a>     | Jane Smith    | workshop_1,workshop_3</pre>
-                </div>
-
-                <div class="import-area" id="importAreaAttendees">
+                <div class="import-area">
                     <div style="font-size: 48px; margin-bottom: 16px;">👥</div>
-                    <p style="color: #666; margin-bottom: 16px;">Upload Attendees File After Workshops</p>
+                    <p style="color: #666; margin-bottom: 16px;">Upload Attendees File</p>
                     <div class="file-input-wrapper">
                         <label for="fileInputAttendees" class="btn btn-primary">Choose Attendees File</label>
                         <input type="file" id="fileInputAttendees" accept=".xlsx,.xls">
@@ -583,33 +526,40 @@ workshop_2      | Board Readiness - Arabic    | تعلم الحوكمة         
         </div>
     </div>
 
-    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script>
-        let selectedMethod = null;
         let workshopCapacities = {};
+
+        // Add click handlers to method cards
+        document.getElementById('methodAll').addEventListener('click', function() {
+            selectMethod('all');
+        });
+
+        document.getElementById('methodSeparate').addEventListener('click', function() {
+            selectMethod('separate');
+        });
 
         // Select import method
         function selectMethod(method) {
-            selectedMethod = method;
+            console.log('Selected method:', method);
             
-            // Update UI - remove active from all cards and sections
-            document.querySelectorAll('.method-card').forEach(card => card.classList.remove('active'));
+            // Remove active class from all cards
+            document.querySelectorAll('.method-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            
+            // Hide all sections
             document.querySelectorAll('.import-section').forEach(section => {
-                section.classList.remove('active');
-                section.style.display = 'none';
+                section.classList.remove('show');
             });
             
             // Activate selected method
             if (method === 'all') {
                 document.getElementById('methodAll').classList.add('active');
-                const section = document.getElementById('sectionAll');
-                section.classList.add('active');
-                section.style.display = 'block';
+                document.getElementById('sectionAll').classList.add('show');
             } else if (method === 'separate') {
                 document.getElementById('methodSeparate').classList.add('active');
-                const section = document.getElementById('sectionSeparate');
-                section.classList.add('active');
-                section.style.display = 'block';
+                document.getElementById('sectionSeparate').classList.add('show');
             }
         }
 
@@ -690,7 +640,6 @@ workshop_2      | Board Readiness - Arabic    | تعلم الحوكمة         
                     tableHTML += '</tbody></table>';
                     registrationsTable.innerHTML = tableHTML;
 
-                    // Load workshops table
                     loadWorkshopsTable(data.workshops);
                 }
             } catch (error) {
@@ -754,7 +703,7 @@ workshop_2      | Board Readiness - Arabic    | تعلم الحوكمة         
             workshopsTable.innerHTML = tableHTML;
         }
 
-        // Single File Import (Method 1)
+        // File input handlers
         document.getElementById('fileInputAll').addEventListener('change', async (e) => {
             const file = e.target.files[0];
             if (!file) return;
@@ -763,16 +712,16 @@ workshop_2      | Board Readiness - Arabic    | تعلم الحوكمة         
             
             try {
                 const data = await readExcelFile(file);
-                showCapacityInputs(data, 'All');
+                showCapacityInputs(data);
                 document.getElementById('importBtnAll').disabled = false;
             } catch (error) {
                 showMessage('Error reading file: ' + error.message, 'error');
             }
         });
 
-        function showCapacityInputs(data, suffix) {
-            const capacitySection = document.getElementById('capacitySection' + suffix);
-            const capacityGrid = document.getElementById('capacityGrid' + suffix);
+        function showCapacityInputs(data) {
+            const capacitySection = document.getElementById('capacitySectionAll');
+            const capacityGrid = document.getElementById('capacityGridAll');
             
             const workshopColumns = Object.keys(data[0] || {}).filter(col => 
                 col !== 'Name' && col !== 'Email'
@@ -786,7 +735,7 @@ workshop_2      | Board Readiness - Arabic    | تعلم الحوكمة         
                 itemDiv.className = 'capacity-item';
                 
                 const label = document.createElement('label');
-                label.textContent = workshopName.replace(/\n/g, ' ');
+                label.textContent = workshopName.replace(/\n/g, ' ').replace(/\r/g, '');
                 
                 const input = document.createElement('input');
                 input.type = 'number';
@@ -846,7 +795,7 @@ workshop_2      | Board Readiness - Arabic    | تعلم الحوكمة         
             }
         });
 
-        // Separate Files Import (Method 2)
+        // Separate files handlers
         document.getElementById('fileInputWorkshops').addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (file) {
@@ -879,7 +828,7 @@ workshop_2      | Board Readiness - Arabic    | تعلم الحوكمة         
                 const result = await response.json();
                 
                 if (result.success) {
-                    showMessage(result.message + ' Now import attendees file.', 'success');
+                    showMessage(result.message, 'success');
                     await loadStats();
                     await loadRegistrations();
                     fileInput.value = '';
@@ -954,10 +903,10 @@ workshop_2      | Board Readiness - Arabic    | تعلم الحوكمة         
                         const workbook = XLSX.read(data, { type: 'array' });
                         const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
                         
-                        // IMPORTANT: Use defval option to include columns with null/undefined values
+                        // Include null values to get all columns
                         const jsonData = XLSX.utils.sheet_to_json(firstSheet, { 
-                            defval: null,  // Include null values
-                            raw: false     // Convert dates to strings
+                            defval: null,
+                            raw: false
                         });
                         
                         if (jsonData.length === 0) {
@@ -1018,4 +967,19 @@ workshop_2      | Board Readiness - Arabic    | تعلم الحوكمة         
             document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
             
-            event.target.classList.add('acti
+            event.target.classList.add('active');
+            document.getElementById(tabName + 'Tab').classList.add('active');
+        }
+
+        // Initial load
+        loadStats();
+        loadRegistrations();
+
+        // Auto-refresh every 30 seconds
+        setInterval(() => {
+            loadStats();
+            loadRegistrations();
+        }, 30000);
+    </script>
+</body>
+</html>
