@@ -168,6 +168,24 @@ app.get('/api/admin/registrations', (req, res) => {
   });
 });
 
+// Workshop name mapping for Excel placeholders
+const workshopNameMapping = {
+  'Image 1': 'Image 1 - برنامج جاهزية أعضاء مجلس الإدارة - اللغة الإنجليزية - Batch 1',
+  'Image 1_1': 'Image 1 - برنامج جاهزية أعضاء مجلس الإدارة - اللغة الإنجليزية - Batch 2',
+  'Image 2': 'Image 2 - برنامج جاهزية أعضاء مجلس الإدارة - اللغة العربية - Batch 1',
+  'Image 2_1': 'Image 2 - برنامج جاهزية أعضاء مجلس الإدارة - اللغة العربية - Batch 2',
+  'Image 3': 'Image 3 - برنامج أعضاء مجلس الإدارة المتقدم - اللغة الإنجليزية - Batch 1',
+  'Image 3_1': 'Image 3 - برنامج أعضاء مجلس الإدارة المتقدم - اللغة الإنجليزية - Batch 2',
+  'Text 1': 'برنامج لجنة الترشيحات والمكافآت – اللغة العربية والإنجليزية (يومان) - الخيار الأول: 29-30 مارس',
+  'Text 1_1': 'برنامج لجنة الترشيحات والمكافآت – اللغة العربية والإنجليزية (يومان) - الخيار الثاني: 6-7 مايو',
+  'Text 2': 'برنامج لجنة المراجعة – اللغة العربية والإنجليزية (يومان) - الخيار الأول: 1-2 أبريل',
+  'Text 2_1': 'برنامج لجنة المراجعة – اللغة العربية والإنجليزية (يومان) - الخيار الثاني: 21-22 يونيو',
+  'Text 3': 'برنامج لجنة الحوكمة والمخاطر والإمتثال – اللغة العربية والإنجليزية (يومان) - الخيار الأول: 12-13 أبريل',
+  'Text 3_1': 'برنامج لجنة الحوكمة والمخاطر والإمتثال – اللغة العربية والإنجليزية (يومان) - الخيار الثاني: 13-14 مايو',
+  'Text 4': 'برنامج لجنة الإستثمار – اللغة العربية والإنجليزية (يومان) - الخيار الأول: 22-23 أبريل',
+  'Text 4_1': 'برنامج لجنة الإستثمار – اللغة العربية والإنجليزية (يومان) - الخيار الثاني: 17-18 يونيو'
+};
+
 // Admin: Import Excel data
 app.post('/api/admin/import', (req, res) => {
   const { data, workshopCapacities, workshopsData, attendeesData } = req.body;
@@ -182,26 +200,37 @@ app.post('/api/admin/import', (req, res) => {
         col !== 'Name' && col !== 'Email'
       );
       
-      // Create workshops from column headers with provided capacities
-      const workshops = workshopColumns.map((workshopName, index) => ({
-        id: `workshop_${index + 1}`,
-        name: workshopName.replace(/\n/g, ' '), // Replace newlines with spaces
-        description: '',
-        capacity: parseInt(workshopCapacities[workshopName]) || 30
-      }));
+      // Create workshops from column headers with actual names
+      const workshops = [];
+      
+      workshopColumns.forEach((rawColumnName, index) => {
+        const cleanColumnName = rawColumnName.replace(/\r?\n/g, ' ').trim();
+        
+        // Check if we have a mapping for this column name
+        const mappedName = workshopNameMapping[cleanColumnName];
+        const workshopName = mappedName || cleanColumnName;
+        
+        workshops.push({
+          id: `workshop_${index + 1}`,
+          name: workshopName,
+          description: '',
+          capacity: parseInt(workshopCapacities[rawColumnName]) || 30,
+          originalColumn: cleanColumnName // Keep track of original column for debugging
+        });
+      });
 
       // Process attendees - each row is one attendee
       const attendees = data.map((row, index) => {
+        const workshopOptions = [];
+        
         // Find which workshops this attendee can choose (where value is "Yes")
-        const workshopOptions = workshopColumns
-          .filter((col) => {
-            const value = row[col];
-            return value === 'Yes' || value === 'yes' || value === 'YES';
-          })
-          .map((col) => {
-            const workshopIndex = workshopColumns.indexOf(col);
-            return `workshop_${workshopIndex + 1}`;
-          });
+        workshopColumns.forEach((rawColumnName, workshopIndex) => {
+          const value = row[rawColumnName];
+          
+          if (value === 'Yes' || value === 'yes' || value === 'YES') {
+            workshopOptions.push(`workshop_${workshopIndex + 1}`);
+          }
+        });
 
         return {
           id: `attendee_${index + 1}`,
