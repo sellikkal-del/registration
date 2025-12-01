@@ -199,6 +199,19 @@
             color: #c62828;
         }
 
+        .workshop-image {
+            width: 100%;
+            max-width: 500px;
+            margin-top: 15px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .workshop-option.has-image {
+            padding-bottom: 20px;
+        }
+
         button {
             width: 100%;
             padding: 16px;
@@ -446,7 +459,23 @@
             workshops.forEach(workshop => {
                 const isDisabled = !workshop.available;
                 const optionDiv = document.createElement('div');
-                optionDiv.className = `workshop-option ${isDisabled ? 'disabled' : ''}`;
+                
+                // Check if this workshop needs an image
+                let imageHtml = '';
+                let hasImage = false;
+                
+                if (workshop.name.includes('Image 1')) {
+                    imageHtml = '<img src="images/image1.png" alt="Workshop Schedule" class="workshop-image">';
+                    hasImage = true;
+                } else if (workshop.name.includes('Image 2')) {
+                    imageHtml = '<img src="images/image2.png" alt="Workshop Schedule" class="workshop-image">';
+                    hasImage = true;
+                } else if (workshop.name.includes('Image 3')) {
+                    imageHtml = '<img src="images/image3.png" alt="Workshop Schedule" class="workshop-image">';
+                    hasImage = true;
+                }
+                
+                optionDiv.className = `workshop-option ${isDisabled ? 'disabled' : ''} ${hasImage ? 'has-image' : ''}`;
                 optionDiv.dataset.workshopId = workshop.id;
                 
                 optionDiv.innerHTML = `
@@ -458,6 +487,7 @@
                             ${workshop.spotsLeft} ${workshop.spotsLeft === 1 ? 'مقعد' : 'مقاعد'}
                         </span>
                     </div>
+                    ${imageHtml}
                 `;
                 
                 if (!isDisabled) {
