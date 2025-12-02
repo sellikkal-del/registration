@@ -171,10 +171,14 @@ app.get('/api/admin/registrations', (req, res) => {
   });
 });
 
-// Workshop name mapping for new structure from Options.xlsx
+// Workshop name mapping for new structure from Revised_Options_and_MoF_Participants__Dec_02_.xlsx
 const workshopOptionsMapping = {
-  'Option1': {
-    main: 'برنامج جاهزية أعضاء مجلس الإدارة – اللغة الإنجليزية (11 يوم)',
+  'Title 1': {
+    main: 'برنامج جاهزية أعضاء مجلس الإدارة – اللغة الإنجليزية (11 يوم غير متتالية)',
+    hasOptions: true
+  },
+  'Title 1-op1': {
+    name: 'برنامج جاهزية أعضاء مجلس الإدارة – اللغة الإنجليزية - الخيار الأول',
     subOptions: [
       'المحور الأول: دور الأعضاء ومجلس الإدارة - 13-14 يناير',
       'المحور الثاني: الاستراتيجية لأعضاء مجلس الإدارة - 27-29 يناير',
@@ -182,8 +186,8 @@ const workshopOptionsMapping = {
       'المحور الرابع: المالية لأعضاء مجلس الإدارة غير الماليين - 9-12 فبراير'
     ]
   },
-  'Option2': {
-    main: 'برنامج جاهزية أعضاء مجلس الإدارة – اللغة الإنجليزية (11 يوم)',
+  'Title1-Op2': {
+    name: 'برنامج جاهزية أعضاء مجلس الإدارة – اللغة الإنجليزية - الخيار الثاني',
     subOptions: [
       'المحور الأول: دور الأعضاء ومجلس الإدارة - 14-15 أبريل',
       'المحور الثاني: الاستراتيجية لأعضاء مجلس الإدارة - 28-30 أبريل',
@@ -191,12 +195,107 @@ const workshopOptionsMapping = {
       'المحور الرابع: المالية لأعضاء مجلس الإدارة غير الماليين - 18-21 مايو'
     ]
   },
-  'Option3': {
-    main: 'برنامج لجنة الترشيحات والمكافآت – اللغة العربية والإنجليزية (يومان)',
+  'Title 2': {
+    main: 'برنامج جاهزية أعضاء مجلس الإدارة – اللغة العربية (10 أيام غير متتالية)',
+    hasOptions: true
+  },
+  'Title 2-Op1': {
+    name: 'برنامج جاهزية أعضاء مجلس الإدارة – اللغة العربية - الخيار الأول',
     subOptions: [
-      'الخيار الأول: 29-30 مارس',
-      'الخيار الثاني: 6-7 مايو'
+      'المحور الأول: أسس الحوكمة والأدوار والمسؤوليات - 19-21 أبريل',
+      'المحور الثاني: الرقابة الإستراتيجية - 3-4 مايو',
+      'المحور الثالث: الإشراف على المخاطر وأخلاقيات العمل المؤسسية - 10-11 مايو',
+      'المحور الرابع: المعلومات، الهيكلية، الجدولة، وجودة اتخاذ القرار - 12 مايو',
+      'المحور الخامس: الإشراف المالي والرقابي - 17-18 مايو'
     ]
+  },
+  'Title 2-Op2': {
+    name: 'برنامج جاهزية أعضاء مجلس الإدارة – اللغة العربية - الخيار الثاني',
+    subOptions: [
+      'المحور الأول: أسس الحوكمة والأدوار والمسؤوليات - 7-9 يونيو',
+      'المحور الثاني: الرقابة الإستراتيجية - 14-15 يونيو',
+      'المحور الثالث: الإشراف على المخاطر وأخلاقيات العمل المؤسسية - 23-24 يونيو',
+      'المحور الرابع: المعلومات، الهيكلية، الجدولة، وجودة اتخاذ القرار - 26 يونيو',
+      'المحور الخامس: الإشراف المالي والرقابي - 29-30 يونيو'
+    ]
+  },
+  'Title2-Op2': {  // Duplicate in Excel - same as Title 2-Op2
+    name: 'برنامج جاهزية أعضاء مجلس الإدارة – اللغة العربية - الخيار الثاني',
+    subOptions: [
+      'المحور الأول: أسس الحوكمة والأدوار والمسؤوليات - 7-9 يونيو',
+      'المحور الثاني: الرقابة الإستراتيجية - 14-15 يونيو',
+      'المحور الثالث: الإشراف على المخاطر وأخلاقيات العمل المؤسسية - 23-24 يونيو',
+      'المحور الرابع: المعلومات، الهيكلية، الجدولة، وجودة اتخاذ القرار - 26 يونيو',
+      'المحور الخامس: الإشراف المالي والرقابي - 29-30 يونيو'
+    ]
+  },
+  'Title 3': {
+    main: 'أعضاء مجلس الإدارة المتقدم – اللغة الإنجليزية (4 أيام متتالية)',
+    hasOptions: true
+  },
+  'Title 3-Op1': {
+    name: 'أعضاء مجلس الإدارة المتقدم – اللغة الإنجليزية - الخيار الأول',
+    subOptions: [
+      'المحور الأول: دعم عملية اتخاذ القرار الاستراتيجي - 6 أبريل',
+      'المحور الثاني: الاستراتيجية لأعضاء مجلس الإدارة - 7 أبريل',
+      'المحور الثالث: القيادة لأعضاء مجلس الإدارة - 8-9 أبريل'
+    ]
+  },
+  'Title 3-Op2': {
+    name: 'أعضاء مجلس الإدارة المتقدم – اللغة الإنجليزية - الخيار الثاني',
+    subOptions: [
+      'المحور الأول: دعم عملية اتخاذ القرار الاستراتيجي - 8 يونيو',
+      'المحور الثاني: الاستراتيجية لأعضاء مجلس الإدارة - 9 يونيو',
+      'المحور الثالث: القيادة لأعضاء مجلس الإدارة - 10-11 يونيو'
+    ]
+  },
+  'Title 4': {
+    main: 'برنامج لجنة الإستثمار – اللغة العربية والإنجليزية (يومان)',
+    hasOptions: true
+  },
+  'Title 4-Op1': {
+    name: 'برنامج لجنة الإستثمار - الخيار الأول: 22-23 أبريل',
+    subOptions: []
+  },
+  'Title 4-Op2': {
+    name: 'برنامج لجنة الإستثمار - الخيار الثاني: 17-18 يونيو',
+    subOptions: []
+  },
+  'Title 5': {
+    main: 'برنامج لجنة الترشيحات والمكافآت – اللغة العربية والإنجليزية (يومان)',
+    hasOptions: true
+  },
+  'Title 5-Op1': {
+    name: 'برنامج لجنة الترشيحات والمكافآت - الخيار الأول: 29-30 مارس',
+    subOptions: []
+  },
+  'Title 5-Op2': {
+    name: 'برنامج لجنة الترشيحات والمكافآت - الخيار الثاني: 6-7 مايو',
+    subOptions: []
+  },
+  'Title 6': {
+    main: 'برنامج لجنة الحوكمة والمخاطر والإمتثال – اللغة العربية والإنجليزية (يومان)',
+    hasOptions: true
+  },
+  'Title 6-Op1': {
+    name: 'برنامج لجنة الحوكمة والمخاطر والإمتثال - الخيار الأول: 12-13 أبريل',
+    subOptions: []
+  },
+  'Title 6-Op2': {
+    name: 'برنامج لجنة الحوكمة والمخاطر والإمتثال - الخيار الثاني: 13-14 مايو',
+    subOptions: []
+  },
+  'Title 7': {
+    main: 'برنامج لجنة المراجعة – اللغة العربية والإنجليزية (يومان)',
+    hasOptions: true
+  },
+  'Title 7-Op1': {
+    name: 'برنامج لجنة المراجعة - الخيار الأول: 1-2 أبريل',
+    subOptions: []
+  },
+  'Title 7-Op2': {
+    name: 'برنامج لجنة المراجعة - الخيار الثاني: 21-22 يونيو',
+    subOptions: []
   }
 };
 
@@ -211,35 +310,43 @@ app.post('/api/admin/import', (req, res) => {
     if (data && workshopCapacities) {
       // Extract workshop names from column headers (skip Name and Email columns)
       const workshopColumns = Object.keys(data[0] || {}).filter(col => 
-        col !== 'Name' && col !== 'Email'
+        col !== 'Name' && col !== 'Email' && col !== 'Dates' && col !== 'Emails'
       );
       
-      // Create workshops from Options.xlsx structure
+      // Create workshops from column headers
       const workshops = [];
       let workshopIndex = 1;
       
       workshopColumns.forEach((columnName) => {
         const cleanColumnName = columnName.replace(/\r?\n/g, ' ').trim();
         
-        // Check if this is an Option column (Option1, Option2, Option3, etc.)
-        if (workshopOptionsMapping[cleanColumnName]) {
+        // Skip if it's a pure Title (not an option) - format: "Title X" without "-Op"
+        const isTitleOnly = /^Title \d+$/.test(cleanColumnName);
+        if (isTitleOnly) {
+          // This is a main title, skip it (we only create workshops for options)
+          return;
+        }
+        
+        // Check if this is an Option column (has -Op in the name)
+        if (workshopOptionsMapping[cleanColumnName] && workshopOptionsMapping[cleanColumnName].name) {
           const optionData = workshopOptionsMapping[cleanColumnName];
           
-          // Create one workshop for this option (since it's "One Radio Button")
-          // Combine main label with all sub-options as description
-          const fullDescription = optionData.subOptions.join(' | ');
+          // Create workshop for this option
+          const fullDescription = optionData.subOptions.length > 0 
+            ? optionData.subOptions.join(' | ') 
+            : '';
           
           workshops.push({
             id: `workshop_${workshopIndex}`,
-            name: optionData.main,
+            name: optionData.name,
             description: fullDescription,
             capacity: parseInt(workshopCapacities[columnName]) || 30,
             subOptions: optionData.subOptions,
             originalColumn: cleanColumnName
           });
           workshopIndex++;
-        } else {
-          // For unmapped columns, use column name as-is
+        } else if (!isTitleOnly) {
+          // For unmapped columns (that aren't Title-only), use column name as-is
           workshops.push({
             id: `workshop_${workshopIndex}`,
             name: cleanColumnName,
@@ -255,20 +362,29 @@ app.post('/api/admin/import', (req, res) => {
       // Process attendees - each row is one attendee
       const attendees = data.map((row, index) => {
         const workshopOptions = [];
+        let currentWorkshopIndex = 1;
         
         // Find which workshops this attendee can choose (where value is "Yes")
-        workshopColumns.forEach((columnName, columnIndex) => {
+        workshopColumns.forEach((columnName) => {
+          const cleanColumnName = columnName.replace(/\r?\n/g, ' ').trim();
           const value = row[columnName];
           
-          if (value === 'Yes' || value === 'yes' || value === 'YES') {
-            workshopOptions.push(`workshop_${columnIndex + 1}`);
+          // Skip Title-only columns (they're not actual workshops)
+          const isTitleOnly = /^Title \d+$/.test(cleanColumnName);
+          if (isTitleOnly) {
+            return;
           }
+          
+          if (value === 'Yes' || value === 'yes' || value === 'YES') {
+            workshopOptions.push(`workshop_${currentWorkshopIndex}`);
+          }
+          currentWorkshopIndex++;
         });
 
         return {
           id: `attendee_${index + 1}`,
-          email: (row.Email || '').toLowerCase().trim(),
-          name: row.Name || '',
+          email: (row.Email || row.Emails || '').toLowerCase().trim(),
+          name: row.Name || row.Dates || '',
           workshopOptions: workshopOptions
         };
       }).filter(a => a.email); // Only include rows with email
