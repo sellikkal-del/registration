@@ -492,11 +492,16 @@
                 console.log('  Description:', workshop.description);
                 console.log('  Modules:', workshop.modules);
                 
+                // Ensure we have values or use fallbacks
+                const workshopTitle = workshop.title || workshop.name || 'ورشة عمل';
+                const workshopDescription = workshop.description || '';
+                const workshopModules = workshop.modules || '';
+                
                 // Build modules HTML if available
                 let modulesHtml = '';
-                if (workshop.modules && workshop.modules.includes('|')) {
+                if (workshopModules && workshopModules.includes('|')) {
                     // Split modules by | to show as bullet points
-                    const modulesList = workshop.modules.split('|').map(m => m.trim());
+                    const modulesList = workshopModules.split('|').map(m => m.trim());
                     console.log('  Module list:', modulesList);
                     modulesHtml = '<div class="workshop-modules">';
                     modulesList.forEach(module => {
@@ -515,8 +520,8 @@
                         <div class="workshop-header">
                             <div class="radio-circle"></div>
                             <div class="workshop-info">
-                                <div class="workshop-title-block">${workshop.title}</div>
-                                <div class="workshop-description-block">${workshop.description}</div>
+                                <div class="workshop-title-block">${workshopTitle}</div>
+                                ${workshopDescription ? `<div class="workshop-description-block">${workshopDescription}</div>` : ''}
                             </div>
                             <span class="workshop-capacity ${isDisabled ? 'full' : ''}">
                                 ${workshop.spotsLeft} ${workshop.spotsLeft === 1 ? 'مقعد' : 'مقاعد'}

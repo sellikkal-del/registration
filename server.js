@@ -79,7 +79,9 @@ app.post('/api/check-email', (req, res) => {
       return {
         id: w.id,
         name: w.name,
-        description: w.description,
+        title: w.title || w.name,
+        description: w.description || '',
+        modules: w.modules || '',
         capacity: w.capacity,
         registered: registrationCount,
         spotsLeft: spotsLeft,
