@@ -512,9 +512,14 @@
             <div id="registrationsTab" class="tab-content active">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                     <h2 style="margin: 0;">👥 Registration List</h2>
-                    <button class="btn btn-danger btn-small" onclick="clearRegistrations()">
-                        Clear All Registrations
-                    </button>
+                    <div class="button-group">
+                        <button class="btn btn-primary btn-small" onclick="exportToExcel()" id="exportBtn">
+                            📥 Export to Excel
+                        </button>
+                        <button class="btn btn-danger btn-small" onclick="clearRegistrations()">
+                            Clear All Registrations
+                        </button>
+                    </div>
                 </div>
                 <div id="registrationsTable"></div>
             </div>
@@ -618,6 +623,7 @@
                         <table>
                             <thead>
                                 <tr>
+                                    <th>Name</th>
                                     <th>Email</th>
                                     <th>Workshop</th>
                                     <th>Registered At</th>
@@ -630,6 +636,7 @@
                         const date = new Date(reg.registeredAt).toLocaleString();
                         tableHTML += `
                             <tr>
+                                <td><strong>${reg.name || 'N/A'}</strong></td>
                                 <td>${reg.email}</td>
                                 <td><span class="badge badge-success">${reg.workshopName}</span></td>
                                 <td>${date}</td>
@@ -969,6 +976,60 @@
             
             event.target.classList.add('active');
             document.getElementById(tabName + 'Tab').classList.add('active');
+        }
+
+        // Export registrations to Excel
+        async function exportToExcel() {
+            const exportBtn = document.getElementById('exportBtn');
+            exportBtn.disabled = true;
+            exportBtn.innerHTML = '<span class="loading"></span>Exporting...';
+            
+            try {
+                const response = await fetch('/api/admin/registrations');
+                const data = await response.json();
+                
+                if (!data.success || data.registrations.length === 0) {
+                    showMessage('No registrations to export', 'error');
+                    return;
+                }
+                
+                // Prepare data for Excel
+                const exportData = data.registrations.map(reg => ({
+                    'Name': reg.name || 'N/A',
+                    'Email': reg.email,
+                    'Workshop': reg.workshopName,
+                    'Registered At': new Date(reg.registeredAt).toLocaleString()
+                }));
+                
+                // Create worksheet
+                const ws = XLSX.utils.json_to_sheet(exportData);
+                
+                // Set column widths
+                ws['!cols'] = [
+                    { wch: 25 }, // Name
+                    { wch: 30 }, // Email
+                    { wch: 60 }, // Workshop
+                    { wch: 20 }  // Registered At
+                ];
+                
+                // Create workbook
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, 'Registrations');
+                
+                // Generate filename with timestamp
+                const timestamp = new Date().toISOString().split('T')[0];
+                const filename = `registrations_${timestamp}.xlsx`;
+                
+                // Download
+                XLSX.writeFile(wb, filename);
+                
+                showMessage(`Exported ${data.registrations.length} registrations to ${filename}`, 'success');
+            } catch (error) {
+                showMessage('Error exporting: ' + error.message, 'error');
+            } finally {
+                exportBtn.disabled = false;
+                exportBtn.innerHTML = '📥 Export to Excel';
+            }
         }
 
         // Initial load

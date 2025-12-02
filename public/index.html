@@ -199,6 +199,21 @@
             color: #c62828;
         }
 
+        .workshop-sub-options {
+            margin-top: 12px;
+            padding: 12px 15px;
+            background-color: #f9f9f9;
+            border-radius: 6px;
+            border: 1px solid #e8e8e8;
+        }
+
+        .sub-option {
+            color: #555;
+            font-size: 13px;
+            line-height: 1.8;
+            padding: 4px 0;
+        }
+
         .workshop-image {
             width: 100%;
             max-width: 500px;
@@ -451,6 +466,8 @@
             const workshopsList = document.getElementById('workshopsList');
             workshopsList.innerHTML = '';
             
+            console.log('Loading workshops:', workshops);
+            
             if (workshops.length === 0) {
                 workshopsList.innerHTML = '<div class="message info">لا توجد ورش عمل متاحة حالياً</div>';
                 return;
@@ -460,22 +477,24 @@
                 const isDisabled = !workshop.available;
                 const optionDiv = document.createElement('div');
                 
-                // Check if this workshop needs an image
-                let imageHtml = '';
-                let hasImage = false;
+                console.log('Processing workshop:', workshop.name);
+                console.log('  Description:', workshop.description);
+                console.log('  Has pipe?:', workshop.description && workshop.description.includes('|'));
                 
-                if (workshop.name.includes('Image 1')) {
-                    imageHtml = '<img src="images/image1.png" alt="Workshop Schedule" class="workshop-image">';
-                    hasImage = true;
-                } else if (workshop.name.includes('Image 2')) {
-                    imageHtml = '<img src="images/image2.png" alt="Workshop Schedule" class="workshop-image">';
-                    hasImage = true;
-                } else if (workshop.name.includes('Image 3')) {
-                    imageHtml = '<img src="images/image3.png" alt="Workshop Schedule" class="workshop-image">';
-                    hasImage = true;
+                // Check if this workshop has sub-options to display
+                let subOptionsHtml = '';
+                if (workshop.description && workshop.description.includes('|')) {
+                    // Split description by | to show sub-options as a list
+                    const subOpts = workshop.description.split('|').map(opt => opt.trim());
+                    console.log('  Sub-options:', subOpts);
+                    subOptionsHtml = '<div class="workshop-sub-options">';
+                    subOpts.forEach((opt, idx) => {
+                        subOptionsHtml += `<div class="sub-option">• ${opt}</div>`;
+                    });
+                    subOptionsHtml += '</div>';
                 }
                 
-                optionDiv.className = `workshop-option ${isDisabled ? 'disabled' : ''} ${hasImage ? 'has-image' : ''}`;
+                optionDiv.className = `workshop-option ${isDisabled ? 'disabled' : ''}`;
                 optionDiv.dataset.workshopId = workshop.id;
                 
                 optionDiv.innerHTML = `
@@ -487,7 +506,7 @@
                             ${workshop.spotsLeft} ${workshop.spotsLeft === 1 ? 'مقعد' : 'مقاعد'}
                         </span>
                     </div>
-                    ${imageHtml}
+                    ${subOptionsHtml}
                 `;
                 
                 if (!isDisabled) {
