@@ -199,32 +199,25 @@
             color: #c62828;
         }
 
-        .workshop-title-section {
-            margin-top: 30px;
-            margin-bottom: 15px;
-        }
-
-        .workshop-title-section:first-child {
-            margin-top: 0;
-        }
-
-        .workshop-title {
-            font-size: 18px;
-            font-weight: 700;
-            color: #0f6b4a;
-            padding: 12px 0;
-            border-bottom: 3px solid #0f6b4a;
-            margin: 0 0 15px 0;
-            text-align: right;
-        }
-
-        .workshop-option-name {
-            font-size: 16px;
-            font-weight: 600;
-            color: #333;
+        .workshop-name-container {
             flex: 1;
             text-align: right;
             padding-right: 10px;
+        }
+
+        .workshop-title-line {
+            font-size: 16px;
+            font-weight: 700;
+            color: #0f6b4a;
+            margin-bottom: 5px;
+            line-height: 1.4;
+        }
+
+        .workshop-option-line {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            line-height: 1.3;
         }
 
         .workshop-sub-options {
@@ -240,19 +233,6 @@
             font-size: 13px;
             line-height: 1.8;
             padding: 4px 0;
-        }
-
-        .workshop-image {
-            width: 100%;
-            max-width: 500px;
-            margin-top: 15px;
-            border-radius: 8px;
-            border: 1px solid #e0e0e0;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .workshop-option.has-image {
-            padding-bottom: 20px;
         }
 
         button {
@@ -496,98 +476,56 @@
                 return;
             }
             
-            // Group workshops by their title category
-            const groupedWorkshops = {};
-            
             workshops.forEach(workshop => {
-                // Extract title category from workshop name
-                let titleCategory = null;
-                let optionLabel = workshop.name;
+                const isDisabled = !workshop.available;
+                const optionDiv = document.createElement('div');
                 
-                // Match patterns like "برنامج... - الخيار الأول/الثاني"
-                if (workshop.name.includes(' - الخيار الأول')) {
-                    titleCategory = workshop.name.split(' - الخيار الأول')[0];
-                    optionLabel = 'الخيار الأول';
-                } else if (workshop.name.includes(' - الخيار الثاني')) {
-                    titleCategory = workshop.name.split(' - الخيار الثاني')[0];
-                    optionLabel = 'الخيار الثاني';
+                console.log('Processing workshop:', workshop.name);
+                console.log('  Title:', workshop.title);
+                console.log('  Option:', workshop.option);
+                console.log('  Description:', workshop.description);
+                console.log('  Has pipe?:', workshop.description && workshop.description.includes('|'));
+                
+                // Check if this workshop has sub-options to display
+                let subOptionsHtml = '';
+                if (workshop.description && workshop.description.includes('|')) {
+                    // Split description by | to show sub-options as a list
+                    const subOpts = workshop.description.split('|').map(opt => opt.trim());
+                    console.log('  Sub-options:', subOpts);
+                    subOptionsHtml = '<div class="workshop-sub-options">';
+                    subOpts.forEach((opt, idx) => {
+                        subOptionsHtml += `<div class="sub-option">• ${opt}</div>`;
+                    });
+                    subOptionsHtml += '</div>';
                 }
                 
-                if (titleCategory) {
-                    if (!groupedWorkshops[titleCategory]) {
-                        groupedWorkshops[titleCategory] = [];
-                    }
-                    groupedWorkshops[titleCategory].push({
-                        ...workshop,
-                        optionLabel: optionLabel
-                    });
-                } else {
-                    // If no category found, create its own category
-                    if (!groupedWorkshops[workshop.name]) {
-                        groupedWorkshops[workshop.name] = [];
-                    }
-                    groupedWorkshops[workshop.name].push({
-                        ...workshop,
-                        optionLabel: workshop.name
-                    });
-                }
-            });
-            
-            console.log('Grouped workshops:', groupedWorkshops);
-            
-            // Render grouped workshops
-            Object.keys(groupedWorkshops).forEach(titleCategory => {
-                const categoryOptions = groupedWorkshops[titleCategory];
+                optionDiv.className = `workshop-option ${isDisabled ? 'disabled' : ''}`;
+                optionDiv.dataset.workshopId = workshop.id;
                 
-                // Create title section
-                const titleDiv = document.createElement('div');
-                titleDiv.className = 'workshop-title-section';
-                titleDiv.innerHTML = `<h3 class="workshop-title">${titleCategory}</h3>`;
-                workshopsList.appendChild(titleDiv);
+                // Display structure: Title on first line, Option on second line, then sub-options
+                const titleHtml = workshop.title ? `<div class="workshop-title-line">${workshop.title}</div>` : '';
+                const optionHtml = workshop.option ? `<div class="workshop-option-line">${workshop.option}</div>` : '';
                 
-                // Create options under this title
-                categoryOptions.forEach(workshop => {
-                    const isDisabled = !workshop.available;
-                    const optionDiv = document.createElement('div');
-                    
-                    console.log('Processing workshop:', workshop.name);
-                    console.log('  Description:', workshop.description);
-                    console.log('  Has pipe?:', workshop.description && workshop.description.includes('|'));
-                    
-                    // Check if this workshop has sub-options to display
-                    let subOptionsHtml = '';
-                    if (workshop.description && workshop.description.includes('|')) {
-                        // Split description by | to show sub-options as a list
-                        const subOpts = workshop.description.split('|').map(opt => opt.trim());
-                        console.log('  Sub-options:', subOpts);
-                        subOptionsHtml = '<div class="workshop-sub-options">';
-                        subOpts.forEach((opt, idx) => {
-                            subOptionsHtml += `<div class="sub-option">• ${opt}</div>`;
-                        });
-                        subOptionsHtml += '</div>';
-                    }
-                    
-                    optionDiv.className = `workshop-option ${isDisabled ? 'disabled' : ''}`;
-                    optionDiv.dataset.workshopId = workshop.id;
-                    
-                    optionDiv.innerHTML = `
-                        <input type="radio" name="workshop" value="${workshop.id}" ${isDisabled ? 'disabled' : ''}>
-                        <div class="workshop-header">
-                            <div class="radio-circle"></div>
-                            <div class="workshop-option-name">${workshop.optionLabel}</div>
-                            <span class="workshop-capacity ${isDisabled ? 'full' : ''}">
-                                ${workshop.spotsLeft} ${workshop.spotsLeft === 1 ? 'مقعد' : 'مقاعد'}
-                            </span>
+                optionDiv.innerHTML = `
+                    <input type="radio" name="workshop" value="${workshop.id}" ${isDisabled ? 'disabled' : ''}>
+                    <div class="workshop-header">
+                        <div class="radio-circle"></div>
+                        <div class="workshop-name-container">
+                            ${titleHtml}
+                            ${optionHtml}
                         </div>
-                        ${subOptionsHtml}
-                    `;
-                    
-                    if (!isDisabled) {
-                        optionDiv.addEventListener('click', () => selectWorkshop(workshop.id));
-                    }
-                    
-                    workshopsList.appendChild(optionDiv);
-                });
+                        <span class="workshop-capacity ${isDisabled ? 'full' : ''}">
+                            ${workshop.spotsLeft} ${workshop.spotsLeft === 1 ? 'مقعد' : 'مقاعد'}
+                        </span>
+                    </div>
+                    ${subOptionsHtml}
+                `;
+                
+                if (!isDisabled) {
+                    optionDiv.addEventListener('click', () => selectWorkshop(workshop.id));
+                }
+                
+                workshopsList.appendChild(optionDiv);
             });
         }
 
