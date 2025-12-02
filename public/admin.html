@@ -731,8 +731,11 @@
             const capacityGrid = document.getElementById('capacityGridAll');
             
             const workshopColumns = Object.keys(data[0] || {}).filter(col => 
-                col !== 'Name' && col !== 'Email'
+                col !== 'Name' && col !== 'Email' && col !== 'Dates' && col !== 'Emails'
             );
+            
+            console.log('All columns:', Object.keys(data[0] || {}));
+            console.log('Workshop columns:', workshopColumns);
             
             capacityGrid.innerHTML = '';
             workshopCapacities = {};

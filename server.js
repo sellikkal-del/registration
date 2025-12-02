@@ -58,18 +58,6 @@ app.post('/api/check-email', (req, res) => {
     });
   }
 
-  // Check if already registered
-  const existingRegistration = db.registrations.find(r => r.email.toLowerCase() === email.toLowerCase());
-  if (existingRegistration) {
-    const workshop = db.workshops.find(w => w.id === existingRegistration.workshopId);
-    return res.json({ 
-      success: false, 
-      alreadyRegistered: true,
-      workshop: workshop ? workshop.name : 'Unknown Workshop',
-      message: `You are already registered for: ${workshop ? workshop.name : 'Unknown Workshop'}` 
-    });
-  }
-
   // Get available workshops for this attendee
   const availableWorkshops = db.workshops
     .filter(w => attendee.workshopOptions.includes(w.id))
