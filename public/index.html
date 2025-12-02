@@ -199,40 +199,47 @@
             color: #c62828;
         }
 
-        .workshop-name-container {
+        .workshop-content-block {
+            flex: 1;
+        }
+
+        .workshop-info {
             flex: 1;
             text-align: right;
             padding-right: 10px;
         }
 
-        .workshop-title-line {
-            font-size: 16px;
+        .workshop-title-block {
+            font-size: 17px;
             font-weight: 700;
             color: #0f6b4a;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+
+        .workshop-description-block {
+            font-size: 15px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
             line-height: 1.4;
         }
 
-        .workshop-option-line {
-            font-size: 14px;
-            font-weight: 600;
-            color: #333;
-            line-height: 1.3;
-        }
-
-        .workshop-sub-options {
+        .workshop-modules {
             margin-top: 12px;
-            padding: 12px 15px;
+            padding: 15px 20px;
             background-color: #f9f9f9;
             border-radius: 6px;
             border: 1px solid #e8e8e8;
+            margin-right: 40px;
         }
 
-        .sub-option {
+        .module-item {
             color: #555;
-            font-size: 13px;
-            line-height: 1.8;
-            padding: 4px 0;
+            font-size: 14px;
+            line-height: 1.9;
+            padding: 5px 0;
+            text-align: right;
         }
 
         button {
@@ -482,43 +489,41 @@
                 
                 console.log('Processing workshop:', workshop.name);
                 console.log('  Title:', workshop.title);
-                console.log('  Option:', workshop.option);
                 console.log('  Description:', workshop.description);
-                console.log('  Has pipe?:', workshop.description && workshop.description.includes('|'));
+                console.log('  Modules:', workshop.modules);
                 
-                // Check if this workshop has sub-options to display
-                let subOptionsHtml = '';
-                if (workshop.description && workshop.description.includes('|')) {
-                    // Split description by | to show sub-options as a list
-                    const subOpts = workshop.description.split('|').map(opt => opt.trim());
-                    console.log('  Sub-options:', subOpts);
-                    subOptionsHtml = '<div class="workshop-sub-options">';
-                    subOpts.forEach((opt, idx) => {
-                        subOptionsHtml += `<div class="sub-option">• ${opt}</div>`;
+                // Build modules HTML if available
+                let modulesHtml = '';
+                if (workshop.modules && workshop.modules.includes('|')) {
+                    // Split modules by | to show as bullet points
+                    const modulesList = workshop.modules.split('|').map(m => m.trim());
+                    console.log('  Module list:', modulesList);
+                    modulesHtml = '<div class="workshop-modules">';
+                    modulesList.forEach(module => {
+                        modulesHtml += `<div class="module-item">• ${module}</div>`;
                     });
-                    subOptionsHtml += '</div>';
+                    modulesHtml += '</div>';
                 }
                 
                 optionDiv.className = `workshop-option ${isDisabled ? 'disabled' : ''}`;
                 optionDiv.dataset.workshopId = workshop.id;
                 
-                // Display structure: Title on first line, Option on second line, then sub-options
-                const titleHtml = workshop.title ? `<div class="workshop-title-line">${workshop.title}</div>` : '';
-                const optionHtml = workshop.option ? `<div class="workshop-option-line">${workshop.option}</div>` : '';
-                
+                // Display as block: Title + Description + Modules
                 optionDiv.innerHTML = `
                     <input type="radio" name="workshop" value="${workshop.id}" ${isDisabled ? 'disabled' : ''}>
-                    <div class="workshop-header">
-                        <div class="radio-circle"></div>
-                        <div class="workshop-name-container">
-                            ${titleHtml}
-                            ${optionHtml}
+                    <div class="workshop-content-block">
+                        <div class="workshop-header">
+                            <div class="radio-circle"></div>
+                            <div class="workshop-info">
+                                <div class="workshop-title-block">${workshop.title}</div>
+                                <div class="workshop-description-block">${workshop.description}</div>
+                            </div>
+                            <span class="workshop-capacity ${isDisabled ? 'full' : ''}">
+                                ${workshop.spotsLeft} ${workshop.spotsLeft === 1 ? 'مقعد' : 'مقاعد'}
+                            </span>
                         </div>
-                        <span class="workshop-capacity ${isDisabled ? 'full' : ''}">
-                            ${workshop.spotsLeft} ${workshop.spotsLeft === 1 ? 'مقعد' : 'مقاعد'}
-                        </span>
+                        ${modulesHtml}
                     </div>
-                    ${subOptionsHtml}
                 `;
                 
                 if (!isDisabled) {

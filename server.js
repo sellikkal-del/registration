@@ -171,40 +171,32 @@ app.get('/api/admin/registrations', (req, res) => {
   });
 });
 
-// Workshop name mapping for new structure from Revised_Options_-_Shaijal.xlsx
+// Workshop name mapping for new structure - Each Option is a complete radio button
 const workshopOptionsMapping = {
-  'Title 1': {
-    main: 'برنامج جاهزية أعضاء مجلس الإدارة – اللغة الإنجليزية (11 يوم غير متتالية)',
-    isTitle: true
-  },
-  'Title1-Op1': {
+  'Option1': {
     title: 'برنامج جاهزية أعضاء مجلس الإدارة – اللغة الإنجليزية (11 يوم غير متتالية)',
-    option: 'الخيار الأول',
-    subOptions: [
+    description: 'الخيار الأول',
+    modules: [
       'المحور الأول: دور الأعضاء ومجلس الإدارة - 13-14 يناير',
       'المحور الثاني: الاستراتيجية لأعضاء مجلس الإدارة - 27-29 يناير',
       'المحور الثالث: القيادة لأعضاء مجلس الإدارة - 4-5 فبراير',
       'المحور الرابع: المالية لأعضاء مجلس الإدارة غير الماليين - 9-12 فبراير'
     ]
   },
-  'Title1-Op2': {
+  'Option2': {
     title: 'برنامج جاهزية أعضاء مجلس الإدارة – اللغة الإنجليزية (11 يوم غير متتالية)',
-    option: 'الخيار الثاني',
-    subOptions: [
+    description: 'الخيار الثاني',
+    modules: [
       'المحور الأول: دور الأعضاء ومجلس الإدارة - 14-15 أبريل',
       'المحور الثاني: الاستراتيجية لأعضاء مجلس الإدارة - 28-30 أبريل',
       'المحور الثالث: القيادة لأعضاء مجلس الإدارة - 10-11 مايو',
       'المحور الرابع: المالية لأعضاء مجلس الإدارة غير الماليين - 18-21 مايو'
     ]
   },
-  'Title2': {
-    main: 'برنامج جاهزية أعضاء مجلس الإدارة – اللغة العربية (10 أيام غير متتالية)',
-    isTitle: true
-  },
-  'Title2-Op1': {
+  'Option3': {
     title: 'برنامج جاهزية أعضاء مجلس الإدارة – اللغة العربية (10 أيام غير متتالية)',
-    option: 'الخيار الأول',
-    subOptions: [
+    description: 'الخيار الأول',
+    modules: [
       'المحور الأول: أسس الحوكمة والأدوار والمسؤوليات - 19-21 أبريل',
       'المحور الثاني: الرقابة الإستراتيجية - 3-4 مايو',
       'المحور الثالث: الإشراف على المخاطر وأخلاقيات العمل المؤسسية - 10-11 مايو',
@@ -212,10 +204,10 @@ const workshopOptionsMapping = {
       'المحور الخامس: الإشراف المالي والرقابي - 17-18 مايو'
     ]
   },
-  'Title2-Op2': {
+  'Option4': {
     title: 'برنامج جاهزية أعضاء مجلس الإدارة – اللغة العربية (10 أيام غير متتالية)',
-    option: 'الخيار الثاني',
-    subOptions: [
+    description: 'الخيار الثاني',
+    modules: [
       'المحور الأول: أسس الحوكمة والأدوار والمسؤوليات - 7-9 يونيو',
       'المحور الثاني: الرقابة الإستراتيجية - 14-15 يونيو',
       'المحور الثالث: الإشراف على المخاطر وأخلاقيات العمل المؤسسية - 23-24 يونيو',
@@ -223,83 +215,43 @@ const workshopOptionsMapping = {
       'المحور الخامس: الإشراف المالي والرقابي - 29-30 يونيو'
     ]
   },
-  'Title 3': {
-    main: 'أعضاء مجلس الإدارة المتقدم – اللغة الإنجليزية (4 أيام متتالية)',
-    isTitle: true
-  },
-  'Title3-Op1': {
+  'Option5': {
     title: 'أعضاء مجلس الإدارة المتقدم – اللغة الإنجليزية (4 أيام متتالية)',
-    option: 'الخيار الأول',
-    subOptions: [
+    description: 'الخيار الأول',
+    modules: [
       'المحور الأول: دعم عملية اتخاذ القرار الاستراتيجي - 6 أبريل',
       'المحور الثاني: الاستراتيجية لأعضاء مجلس الإدارة - 7 أبريل',
       'المحور الثالث: القيادة لأعضاء مجلس الإدارة - 8-9 أبريل'
     ]
   },
-  'Title3-Op2': {
+  'Option6': {
     title: 'أعضاء مجلس الإدارة المتقدم – اللغة الإنجليزية (4 أيام متتالية)',
-    option: 'الخيار الثاني',
-    subOptions: [
+    description: 'الخيار الثاني',
+    modules: [
       'المحور الأول: دعم عملية اتخاذ القرار الاستراتيجي - 8 يونيو',
       'المحور الثاني: الاستراتيجية لأعضاء مجلس الإدارة - 9 يونيو',
       'المحور الثالث: القيادة لأعضاء مجلس الإدارة - 10-11 يونيو'
     ]
   },
-  'Title 4': {
-    main: 'برنامج لجنة الإستثمار – اللغة العربية والإنجليزية (يومان)',
-    isTitle: true
-  },
-  'Title4-Op1': {
+  'Option7': {
     title: 'برنامج لجنة الإستثمار – اللغة العربية والإنجليزية (يومان)',
-    option: 'الخيار الأول: 22-23 أبريل',
-    subOptions: []
+    description: 'الخيار الأول: 22-23 أبريل | الخيار الثاني: 17-18 يونيو',
+    modules: []
   },
-  'Title4-Op2': {
-    title: 'برنامج لجنة الإستثمار – اللغة العربية والإنجليزية (يومان)',
-    option: 'الخيار الثاني: 17-18 يونيو',
-    subOptions: []
-  },
-  'Title 5': {
-    main: 'برنامج لجنة الترشيحات والمكافآت – اللغة العربية والإنجليزية (يومان)',
-    isTitle: true
-  },
-  'Title5-Op1': {
+  'Option8': {
     title: 'برنامج لجنة الترشيحات والمكافآت – اللغة العربية والإنجليزية (يومان)',
-    option: 'الخيار الأول: 29-30 مارس',
-    subOptions: []
+    description: 'الخيار الأول: 29-30 مارس | الخيار الثاني: 6-7 مايو',
+    modules: []
   },
-  'Title5-Op2': {
-    title: 'برنامج لجنة الترشيحات والمكافآت – اللغة العربية والإنجليزية (يومان)',
-    option: 'الخيار الثاني: 6-7 مايو',
-    subOptions: []
-  },
-  'Title 6': {
-    main: 'برنامج لجنة الحوكمة والمخاطر والإمتثال – اللغة العربية والإنجليزية (يومان)',
-    isTitle: true
-  },
-  'Title6-Op1': {
+  'Option9': {
     title: 'برنامج لجنة الحوكمة والمخاطر والإمتثال – اللغة العربية والإنجليزية (يومان)',
-    option: 'الخيار الأول: 12-13 أبريل',
-    subOptions: []
+    description: 'الخيار الأول: 12-13 أبريل | الخيار الثاني: 13-14 مايو',
+    modules: []
   },
-  'Title6-Op2': {
-    title: 'برنامج لجنة الحوكمة والمخاطر والإمتثال – اللغة العربية والإنجليزية (يومان)',
-    option: 'الخيار الثاني: 13-14 مايو',
-    subOptions: []
-  },
-  'Title 7': {
-    main: 'برنامج لجنة المراجعة – اللغة العربية والإنجليزية (يومان)',
-    isTitle: true
-  },
-  'Title7-Op1': {
+  'Option10': {
     title: 'برنامج لجنة المراجعة – اللغة العربية والإنجليزية (يومان)',
-    option: 'الخيار الأول: 1-2 أبريل',
-    subOptions: []
-  },
-  'Title7-Op2': {
-    title: 'برنامج لجنة المراجعة – اللغة العربية والإنجليزية (يومان)',
-    option: 'الخيار الثاني: 21-22 يونيو',
-    subOptions: []
+    description: 'الخيار الأول: 1-2 أبريل | الخيار الثاني: 21-22 يونيو',
+    modules: []
   }
 };
 
@@ -324,29 +276,23 @@ app.post('/api/admin/import', (req, res) => {
       workshopColumns.forEach((columnName) => {
         const cleanColumnName = columnName.replace(/\r?\n/g, ' ').trim();
         
-        // Skip if it's a pure Title (not an option)
-        if (workshopOptionsMapping[cleanColumnName] && workshopOptionsMapping[cleanColumnName].isTitle) {
-          return;
-        }
-        
-        // Check if this is an Option column
-        if (workshopOptionsMapping[cleanColumnName] && workshopOptionsMapping[cleanColumnName].title) {
+        // Check if this is a mapped Option
+        if (workshopOptionsMapping[cleanColumnName]) {
           const optionData = workshopOptionsMapping[cleanColumnName];
           
-          // Create workshop with BOTH title and option in the name
-          const fullWorkshopName = `${optionData.title} - ${optionData.option}`;
-          const fullDescription = optionData.subOptions.length > 0 
-            ? optionData.subOptions.join(' | ') 
+          // Create workshop with title, description, and modules
+          const fullWorkshopName = `${optionData.title} - ${optionData.description}`;
+          const moduleDescription = optionData.modules.length > 0 
+            ? optionData.modules.join(' | ') 
             : '';
           
           workshops.push({
             id: `workshop_${workshopIndex}`,
             name: fullWorkshopName,
             title: optionData.title,
-            option: optionData.option,
-            description: fullDescription,
+            description: optionData.description,
+            modules: moduleDescription,
             capacity: parseInt(workshopCapacities[columnName]) || 30,
-            subOptions: optionData.subOptions,
             originalColumn: cleanColumnName
           });
           workshopIndex++;
@@ -356,10 +302,9 @@ app.post('/api/admin/import', (req, res) => {
             id: `workshop_${workshopIndex}`,
             name: cleanColumnName,
             title: cleanColumnName,
-            option: '',
             description: '',
+            modules: '',
             capacity: parseInt(workshopCapacities[columnName]) || 30,
-            subOptions: [],
             originalColumn: cleanColumnName
           });
           workshopIndex++;
@@ -375,11 +320,6 @@ app.post('/api/admin/import', (req, res) => {
         workshopColumns.forEach((columnName) => {
           const cleanColumnName = columnName.replace(/\r?\n/g, ' ').trim();
           const value = row[columnName];
-          
-          // Skip Title-only columns
-          if (workshopOptionsMapping[cleanColumnName] && workshopOptionsMapping[cleanColumnName].isTitle) {
-            return;
-          }
           
           if (value === 'Yes' || value === 'yes' || value === 'YES') {
             workshopOptions.push(`workshop_${currentWorkshopIndex}`);
