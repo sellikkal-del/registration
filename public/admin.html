@@ -17,6 +17,88 @@
             padding: 20px;
         }
 
+        /* Login Page Styles */
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0f6b4a 0%, #1a8f63 100%);
+        }
+
+        .login-box {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .login-logo {
+            max-width: 120px;
+            margin-bottom: 20px;
+        }
+
+        .login-title {
+            color: #0f6b4a;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .login-subtitle {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        .login-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 20px;
+            transition: border-color 0.3s;
+        }
+
+        .login-input:focus {
+            outline: none;
+            border-color: #0f6b4a;
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 12px;
+            background: #0f6b4a;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .login-button:hover {
+            background: #1a8f63;
+        }
+
+        .login-error {
+            color: #d32f2f;
+            background: #ffebee;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Rest of the styles */
         .container {
             max-width: 1400px;
             margin: 0 auto;
@@ -396,6 +478,20 @@
     </style>
 </head>
 <body>
+    <!-- Login Page -->
+    <div id="loginPage" class="login-container">
+        <div class="login-box">
+            <img src="logo.png" alt="Ministry of Finance" class="login-logo">
+            <h2 class="login-title">Admin Panel</h2>
+            <p class="login-subtitle">Ministry of Finance - Kingdom of Saudi Arabia</p>
+            <div id="loginError" class="login-error hidden"></div>
+            <input type="password" id="passwordInput" class="login-input" placeholder="Enter Password" autocomplete="current-password">
+            <button onclick="checkPassword()" class="login-button">Login</button>
+        </div>
+    </div>
+
+    <!-- Main Admin Panel (hidden until login) -->
+    <div id="adminPanel" class="hidden">
     <div class="container">
         <header>
             <img src="logo.png" alt="Ministry of Finance" class="logo">
@@ -1044,6 +1140,50 @@
             loadStats();
             loadRegistrations();
         }, 30000);
+
+        // Password Protection
+        const ADMIN_PASSWORD = 'Cfg@551196';
+        
+        function checkPassword() {
+            const input = document.getElementById('passwordInput');
+            const error = document.getElementById('loginError');
+            const password = input.value;
+            
+            if (password === ADMIN_PASSWORD) {
+                // Correct password
+                document.getElementById('loginPage').classList.add('hidden');
+                document.getElementById('adminPanel').classList.remove('hidden');
+                // Store session
+                sessionStorage.setItem('adminAuth', 'true');
+                // Load data
+                loadStats();
+                loadRegistrations();
+            } else {
+                // Wrong password
+                error.textContent = 'Incorrect password. Please try again.';
+                error.classList.remove('hidden');
+                input.value = '';
+                input.focus();
+            }
+        }
+        
+        // Check if already logged in
+        window.addEventListener('DOMContentLoaded', () => {
+            if (sessionStorage.getItem('adminAuth') === 'true') {
+                document.getElementById('loginPage').classList.add('hidden');
+                document.getElementById('adminPanel').classList.remove('hidden');
+                loadStats();
+                loadRegistrations();
+            }
+        });
+        
+        // Allow Enter key to submit
+        document.getElementById('passwordInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                checkPassword();
+            }
+        });
     </script>
+    </div><!-- End adminPanel -->
 </body>
 </html>
