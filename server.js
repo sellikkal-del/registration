@@ -95,12 +95,6 @@ app.post('/api/register', (req, res) => {
     return res.json({ success: false, message: 'Email not found.' });
   }
 
-  // Check if already registered
-  const existingRegistration = db.registrations.find(r => r.email.toLowerCase() === email.toLowerCase());
-  if (existingRegistration) {
-    return res.json({ success: false, message: 'You are already registered for a workshop.' });
-  }
-
   // Validate workshop
   const workshop = db.workshops.find(w => w.id === workshopId);
   if (!workshop) {
