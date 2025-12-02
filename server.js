@@ -152,8 +152,11 @@ app.get('/api/admin/registrations', (req, res) => {
   
   const registrationsWithDetails = db.registrations.map(reg => {
     const workshop = db.workshops.find(w => w.id === reg.workshopId);
+    const attendee = db.attendees.find(a => a.email === reg.email);
+    
     return {
       ...reg,
+      name: attendee ? attendee.name : 'Unknown',
       workshopName: workshop ? workshop.name : 'Unknown'
     };
   });
@@ -168,22 +171,33 @@ app.get('/api/admin/registrations', (req, res) => {
   });
 });
 
-// Workshop name mapping for Excel placeholders
-const workshopNameMapping = {
-  'Image 1': 'Image 1 - برنامج جاهزية أعضاء مجلس الإدارة - اللغة الإنجليزية - Batch 1',
-  'Image 1_1': 'Image 1 - برنامج جاهزية أعضاء مجلس الإدارة - اللغة الإنجليزية - Batch 2',
-  'Image 2': 'Image 2 - برنامج جاهزية أعضاء مجلس الإدارة - اللغة العربية - Batch 1',
-  'Image 2_1': 'Image 2 - برنامج جاهزية أعضاء مجلس الإدارة - اللغة العربية - Batch 2',
-  'Image 3': 'Image 3 - برنامج أعضاء مجلس الإدارة المتقدم - اللغة الإنجليزية - Batch 1',
-  'Image 3_1': 'Image 3 - برنامج أعضاء مجلس الإدارة المتقدم - اللغة الإنجليزية - Batch 2',
-  'Text 1': 'برنامج لجنة الترشيحات والمكافآت – اللغة العربية والإنجليزية (يومان) - الخيار الأول: 29-30 مارس',
-  'Text 1_1': 'برنامج لجنة الترشيحات والمكافآت – اللغة العربية والإنجليزية (يومان) - الخيار الثاني: 6-7 مايو',
-  'Text 2': 'برنامج لجنة المراجعة – اللغة العربية والإنجليزية (يومان) - الخيار الأول: 1-2 أبريل',
-  'Text 2_1': 'برنامج لجنة المراجعة – اللغة العربية والإنجليزية (يومان) - الخيار الثاني: 21-22 يونيو',
-  'Text 3': 'برنامج لجنة الحوكمة والمخاطر والإمتثال – اللغة العربية والإنجليزية (يومان) - الخيار الأول: 12-13 أبريل',
-  'Text 3_1': 'برنامج لجنة الحوكمة والمخاطر والإمتثال – اللغة العربية والإنجليزية (يومان) - الخيار الثاني: 13-14 مايو',
-  'Text 4': 'برنامج لجنة الإستثمار – اللغة العربية والإنجليزية (يومان) - الخيار الأول: 22-23 أبريل',
-  'Text 4_1': 'برنامج لجنة الإستثمار – اللغة العربية والإنجليزية (يومان) - الخيار الثاني: 17-18 يونيو'
+// Workshop name mapping for new structure from Options.xlsx
+const workshopOptionsMapping = {
+  'Option1': {
+    main: 'برنامج جاهزية أعضاء مجلس الإدارة – اللغة الإنجليزية (11 يوم)',
+    subOptions: [
+      'المحور الأول: دور الأعضاء ومجلس الإدارة - 13-14 يناير',
+      'المحور الثاني: الاستراتيجية لأعضاء مجلس الإدارة - 27-29 يناير',
+      'المحور الثالث: القيادة لأعضاء مجلس الإدارة - 4-5 فبراير',
+      'المحور الرابع: المالية لأعضاء مجلس الإدارة غير الماليين - 9-12 فبراير'
+    ]
+  },
+  'Option2': {
+    main: 'برنامج جاهزية أعضاء مجلس الإدارة – اللغة الإنجليزية (11 يوم)',
+    subOptions: [
+      'المحور الأول: دور الأعضاء ومجلس الإدارة - 14-15 أبريل',
+      'المحور الثاني: الاستراتيجية لأعضاء مجلس الإدارة - 28-30 أبريل',
+      'المحور الثالث: القيادة لأعضاء مجلس الإدارة - 10-11 مايو',
+      'المحور الرابع: المالية لأعضاء مجلس الإدارة غير الماليين - 18-21 مايو'
+    ]
+  },
+  'Option3': {
+    main: 'برنامج لجنة الترشيحات والمكافآت – اللغة العربية والإنجليزية (يومان)',
+    subOptions: [
+      'الخيار الأول: 29-30 مارس',
+      'الخيار الثاني: 6-7 مايو'
+    ]
+  }
 };
 
 // Admin: Import Excel data
@@ -200,23 +214,42 @@ app.post('/api/admin/import', (req, res) => {
         col !== 'Name' && col !== 'Email'
       );
       
-      // Create workshops from column headers with actual names
+      // Create workshops from Options.xlsx structure
       const workshops = [];
+      let workshopIndex = 1;
       
-      workshopColumns.forEach((rawColumnName, index) => {
-        const cleanColumnName = rawColumnName.replace(/\r?\n/g, ' ').trim();
+      workshopColumns.forEach((columnName) => {
+        const cleanColumnName = columnName.replace(/\r?\n/g, ' ').trim();
         
-        // Check if we have a mapping for this column name
-        const mappedName = workshopNameMapping[cleanColumnName];
-        const workshopName = mappedName || cleanColumnName;
-        
-        workshops.push({
-          id: `workshop_${index + 1}`,
-          name: workshopName,
-          description: '',
-          capacity: parseInt(workshopCapacities[rawColumnName]) || 30,
-          originalColumn: cleanColumnName // Keep track of original column for debugging
-        });
+        // Check if this is an Option column (Option1, Option2, Option3, etc.)
+        if (workshopOptionsMapping[cleanColumnName]) {
+          const optionData = workshopOptionsMapping[cleanColumnName];
+          
+          // Create one workshop for this option (since it's "One Radio Button")
+          // Combine main label with all sub-options as description
+          const fullDescription = optionData.subOptions.join(' | ');
+          
+          workshops.push({
+            id: `workshop_${workshopIndex}`,
+            name: optionData.main,
+            description: fullDescription,
+            capacity: parseInt(workshopCapacities[columnName]) || 30,
+            subOptions: optionData.subOptions,
+            originalColumn: cleanColumnName
+          });
+          workshopIndex++;
+        } else {
+          // For unmapped columns, use column name as-is
+          workshops.push({
+            id: `workshop_${workshopIndex}`,
+            name: cleanColumnName,
+            description: '',
+            capacity: parseInt(workshopCapacities[columnName]) || 30,
+            subOptions: [],
+            originalColumn: cleanColumnName
+          });
+          workshopIndex++;
+        }
       });
 
       // Process attendees - each row is one attendee
@@ -224,11 +257,11 @@ app.post('/api/admin/import', (req, res) => {
         const workshopOptions = [];
         
         // Find which workshops this attendee can choose (where value is "Yes")
-        workshopColumns.forEach((rawColumnName, workshopIndex) => {
-          const value = row[rawColumnName];
+        workshopColumns.forEach((columnName, columnIndex) => {
+          const value = row[columnName];
           
           if (value === 'Yes' || value === 'yes' || value === 'YES') {
-            workshopOptions.push(`workshop_${workshopIndex + 1}`);
+            workshopOptions.push(`workshop_${columnIndex + 1}`);
           }
         });
 
