@@ -411,7 +411,6 @@
             <div class="success-icon">✓</div>
             <div class="success-message">
                 <h2>تم التسجيل بنجاح!</h2>
-                <p id="successDetails"></p>
             </div>
         </div>
     </div>
@@ -491,11 +490,16 @@
                 console.log('  Title:', workshop.title);
                 console.log('  Description:', workshop.description);
                 console.log('  Modules:', workshop.modules);
+                console.log('  Original Column:', workshop.originalColumn);
                 
                 // Ensure we have values or use fallbacks
                 const workshopTitle = workshop.title || workshop.name || 'ورشة عمل';
                 const workshopDescription = workshop.description || '';
                 const workshopModules = workshop.modules || '';
+                
+                // Check if this is Option1-6 (no capacity display)
+                const originalColumn = workshop.originalColumn || '';
+                const isOption1to6 = /^Option[1-6]$/i.test(originalColumn);
                 
                 // Build modules HTML if available
                 let modulesHtml = '';
@@ -513,6 +517,13 @@
                 optionDiv.className = `workshop-option ${isDisabled ? 'disabled' : ''}`;
                 optionDiv.dataset.workshopId = workshop.id;
                 
+                // Capacity display: hide for Option1-6, show for Option7-14
+                const capacityHtml = isOption1to6 ? '' : `
+                    <span class="workshop-capacity ${isDisabled ? 'full' : ''}">
+                        ${workshop.spotsLeft} ${workshop.spotsLeft === 1 ? 'مقعد' : 'مقاعد'}
+                    </span>
+                `;
+                
                 // Display as block: Title + Description + Modules
                 optionDiv.innerHTML = `
                     <input type="radio" name="workshop" value="${workshop.id}" ${isDisabled ? 'disabled' : ''}>
@@ -523,9 +534,7 @@
                                 <div class="workshop-title-block">${workshopTitle}</div>
                                 ${workshopDescription ? `<div class="workshop-description-block">${workshopDescription}</div>` : ''}
                             </div>
-                            <span class="workshop-capacity ${isDisabled ? 'full' : ''}">
-                                ${workshop.spotsLeft} ${workshop.spotsLeft === 1 ? 'مقعد' : 'مقاعد'}
-                            </span>
+                            ${capacityHtml}
                         </div>
                         ${modulesHtml}
                     </div>
@@ -584,7 +593,6 @@
                 const data = await response.json();
                 
                 if (data.success) {
-                    document.getElementById('successDetails').textContent = data.workshop;
                     goToStep(3);
                 } else {
                     showMessage('workshopMessage', data.message, 'error');

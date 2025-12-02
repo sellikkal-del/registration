@@ -82,6 +82,7 @@ app.post('/api/check-email', (req, res) => {
         title: w.title || w.name,
         description: w.description || '',
         modules: w.modules || '',
+        originalColumn: w.originalColumn || '',
         capacity: w.capacity,
         registered: registrationCount,
         spotsLeft: spotsLeft,
