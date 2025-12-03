@@ -122,7 +122,8 @@
             box-shadow: 0 4px 12px rgba(15, 107, 74, 0.15);
         }
 
-        .workshop-option input[type="radio"] {
+        .workshop-option input[type="radio"],
+        .workshop-option input[type="checkbox"] {
             position: absolute;
             opacity: 0;
         }
@@ -563,15 +564,32 @@
             
             if (!checkbox || checkbox.disabled) return;
             
-            // Toggle checkbox
-            checkbox.checked = !checkbox.checked;
-            
-            // Update visual state
+            // If clicking an already selected option, unselect it
             if (checkbox.checked) {
-                option.classList.add('selected');
-            } else {
+                checkbox.checked = false;
                 option.classList.remove('selected');
+                updateSubmitButton();
+                return;
             }
+            
+            // If selecting a new option, uncheck other option in same group
+            if (groupName) {
+                // Find all checkboxes in the same group
+                const groupCheckboxes = document.querySelectorAll(`input[type="checkbox"][data-group="${groupName}"]`);
+                groupCheckboxes.forEach(cb => {
+                    if (cb !== checkbox) {
+                        cb.checked = false;
+                        const otherOption = cb.closest('.workshop-option');
+                        if (otherOption) {
+                            otherOption.classList.remove('selected');
+                        }
+                    }
+                });
+            }
+            
+            // Select current option
+            checkbox.checked = true;
+            option.classList.add('selected');
             
             // Enable/disable submit button based on selection
             updateSubmitButton();
