@@ -131,6 +131,86 @@ app.post('/api/register', (req, res) => {
   });
 });
 
+// Submit multiple registrations
+app.post('/api/register-multiple', (req, res) => {
+  const { email, workshopIds } = req.body;
+  const db = readDB();
+  
+  // Validate attendee
+  const attendee = db.attendees.find(a => a.email.toLowerCase() === email.toLowerCase());
+  if (!attendee) {
+    return res.json({ success: false, message: 'Email not found.' });
+  }
+
+  if (!workshopIds || workshopIds.length === 0) {
+    return res.json({ success: false, message: 'No workshops selected.' });
+  }
+
+  const successfulRegistrations = [];
+  const failedRegistrations = [];
+
+  // Process each workshop
+  for (const workshopId of workshopIds) {
+    const workshop = db.workshops.find(w => w.id === workshopId);
+    
+    if (!workshop) {
+      failedRegistrations.push({ workshopId, reason: 'Workshop not found' });
+      continue;
+    }
+
+    // Check if workshop is in attendee's options
+    if (!attendee.workshopOptions.includes(workshopId)) {
+      failedRegistrations.push({ workshopId, reason: 'Not available for your email' });
+      continue;
+    }
+
+    // Check capacity
+    const registrationCount = db.registrations.filter(r => r.workshopId === workshopId).length;
+    if (registrationCount >= workshop.capacity) {
+      failedRegistrations.push({ workshopId, reason: 'Workshop is full' });
+      continue;
+    }
+
+    // Check if already registered for this workshop
+    const alreadyRegistered = db.registrations.find(
+      r => r.email.toLowerCase() === email.toLowerCase() && r.workshopId === workshopId
+    );
+    if (alreadyRegistered) {
+      failedRegistrations.push({ workshopId, reason: 'Already registered' });
+      continue;
+    }
+
+    // Create registration
+    const registration = {
+      id: `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      email: email.toLowerCase(),
+      workshopId: workshopId,
+      workshopName: workshop.name,
+      registeredAt: new Date().toISOString()
+    };
+
+    db.registrations.push(registration);
+    successfulRegistrations.push(workshop.name);
+  }
+
+  writeDB(db);
+
+  if (successfulRegistrations.length > 0) {
+    res.json({ 
+      success: true, 
+      message: `Successfully registered for ${successfulRegistrations.length} workshop(s)!`,
+      registeredWorkshops: successfulRegistrations,
+      failedWorkshops: failedRegistrations
+    });
+  } else {
+    res.json({ 
+      success: false, 
+      message: 'Failed to register for any workshops.',
+      failedWorkshops: failedRegistrations
+    });
+  }
+});
+
 // Admin: Get all registrations
 app.get('/api/admin/registrations', (req, res) => {
   const db = readDB();
@@ -416,6 +496,16 @@ app.post('/api/admin/clear-registrations', (req, res) => {
   db.registrations = [];
   writeDB(db);
   res.json({ success: true, message: 'All registrations cleared.' });
+});
+
+// Admin: Clear ALL data (workshops, attendees, registrations)
+app.post('/api/admin/clear-all-data', (req, res) => {
+  const db = readDB();
+  db.workshops = [];
+  db.attendees = [];
+  db.registrations = [];
+  writeDB(db);
+  res.json({ success: true, message: 'All data cleared successfully. Database is now empty.' });
 });
 
 // Admin: Get statistics

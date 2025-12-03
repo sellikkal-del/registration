@@ -152,23 +152,25 @@
             margin-bottom: 8px;
         }
 
-        .radio-circle {
+        .radio-circle, .checkbox-circle {
             width: 22px;
             height: 22px;
             border: 2px solid #ccc;
-            border-radius: 50%;
+            border-radius: 4px;
             margin-left: 12px;
             position: relative;
             flex-shrink: 0;
             transition: all 0.3s;
         }
 
-        .workshop-option.selected .radio-circle {
+        .workshop-option.selected .radio-circle,
+        .workshop-option.selected .checkbox-circle {
             border-color: #0f6b4a;
             background-color: #0f6b4a;
         }
 
-        .workshop-option.selected .radio-circle::after {
+        .workshop-option.selected .radio-circle::after,
+        .workshop-option.selected .checkbox-circle::after {
             content: '✓';
             position: absolute;
             top: 50%;
@@ -490,6 +492,16 @@
                 const workshopDescription = workshop.description || '';
                 const workshopModules = workshop.modules || '';
                 
+                // Determine group for paired selection (Option1-2, Option3-4, etc.)
+                const originalColumn = workshop.originalColumn || '';
+                let groupName = '';
+                if (/^Option([0-9]+)$/i.test(originalColumn)) {
+                    const optionNum = parseInt(originalColumn.match(/^Option([0-9]+)$/i)[1]);
+                    // Pair options: 1-2, 3-4, 5-6, 7-8, 9-10, 11-12, 13-14
+                    const groupNum = Math.ceil(optionNum / 2);
+                    groupName = `group${groupNum}`;
+                }
+                
                 // Build modules HTML if available
                 let modulesHtml = '';
                 if (workshopModules && workshopModules.includes('|')) {
@@ -505,15 +517,17 @@
                 
                 optionDiv.className = `workshop-option ${isDisabled ? 'disabled' : ''}`;
                 optionDiv.dataset.workshopId = workshop.id;
+                optionDiv.dataset.groupName = groupName;
                 
                 // NO CAPACITY DISPLAY - removed for all options
                 
                 // Display as block: Title + Description + Modules (NO CAPACITY)
+                // Using checkbox instead of radio for multiple selection
                 optionDiv.innerHTML = `
-                    <input type="radio" name="workshop" value="${workshop.id}" ${isDisabled ? 'disabled' : ''}>
+                    <input type="checkbox" name="workshop" value="${workshop.id}" data-group="${groupName}" ${isDisabled ? 'disabled' : ''}>
                     <div class="workshop-content-block">
                         <div class="workshop-header">
-                            <div class="radio-circle"></div>
+                            <div class="checkbox-circle"></div>
                             <div class="workshop-info">
                                 <div class="workshop-title-block">${workshopTitle}</div>
                                 ${workshopDescription ? `<div class="workshop-description-block">${workshopDescription}</div>` : ''}
@@ -524,37 +538,65 @@
                 `;
                 
                 if (!isDisabled) {
-                    optionDiv.addEventListener('click', () => selectWorkshop(workshop.id));
+                    optionDiv.addEventListener('click', (e) => {
+                        // Don't toggle if clicking on the checkbox itself
+                        if (e.target.type !== 'checkbox') {
+                            toggleWorkshop(workshop.id, groupName);
+                        }
+                    });
+                    
+                    // Handle checkbox click
+                    const checkbox = optionDiv.querySelector('input[type="checkbox"]');
+                    checkbox.addEventListener('change', () => {
+                        toggleWorkshop(workshop.id, groupName);
+                    });
                 }
                 
                 workshopsList.appendChild(optionDiv);
             });
         }
 
-        // Select workshop
-        function selectWorkshop(workshopId) {
-            selectedWorkshopId = workshopId;
+        // Toggle workshop selection with group restrictions
+        function toggleWorkshop(workshopId, groupName) {
+            const checkbox = document.querySelector(`.workshop-option[data-workshop-id="${workshopId}"] input[type="checkbox"]`);
+            const option = document.querySelector(`.workshop-option[data-workshop-id="${workshopId}"]`);
             
-            // Update UI
-            document.querySelectorAll('.workshop-option').forEach(option => {
+            if (!checkbox || checkbox.disabled) return;
+            
+            // Toggle checkbox
+            checkbox.checked = !checkbox.checked;
+            
+            // Update visual state
+            if (checkbox.checked) {
+                option.classList.add('selected');
+            } else {
                 option.classList.remove('selected');
-            });
-            
-            const selectedOption = document.querySelector(`.workshop-option[data-workshop-id="${workshopId}"]`);
-            if (selectedOption) {
-                selectedOption.classList.add('selected');
             }
             
-            // Enable submit button
-            document.getElementById('workshopSubmitBtn').disabled = false;
+            // Enable/disable submit button based on selection
+            updateSubmitButton();
+        }
+
+        // Update submit button state
+        function updateSubmitButton() {
+            const checkedBoxes = document.querySelectorAll('.workshop-option input[type="checkbox"]:checked');
+            document.getElementById('workshopSubmitBtn').disabled = checkedBoxes.length === 0;
+        }
+
+        // Get selected workshops
+        function getSelectedWorkshops() {
+            const checkedBoxes = document.querySelectorAll('.workshop-option input[type="checkbox"]:checked');
+            return Array.from(checkedBoxes).map(cb => cb.value);
         }
 
         // Workshop form submission
         document.getElementById('workshopForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            if (!selectedWorkshopId) {
-                showMessage('workshopMessage', 'الرجاء اختيار ورشة عمل / Please select a workshop', 'error');
+            const selectedWorkshops = getSelectedWorkshops();
+            
+            if (selectedWorkshops.length === 0) {
+                showMessage('workshopMessage', 'الرجاء اختيار ورشة عمل واحدة على الأقل / Please select at least one workshop', 'error');
                 return;
             }
             
@@ -564,12 +606,12 @@
             submitBtn.innerHTML = '<span class="loading"></span>جاري التسجيل...';
             
             try {
-                const response = await fetch('/api/register', {
+                const response = await fetch('/api/register-multiple', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
                         email: currentEmail, 
-                        workshopId: selectedWorkshopId 
+                        workshopIds: selectedWorkshops 
                     })
                 });
                 

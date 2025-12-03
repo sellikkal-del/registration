@@ -508,7 +508,12 @@
         <div id="messageArea"></div>
 
         <div class="section">
-            <h2>📋 Import Data</h2>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 style="margin: 0;">📋 Import Data</h2>
+                <button class="btn btn-danger btn-small" onclick="clearAllData()" style="background: #d32f2f;">
+                    🗑️ Clear All Data
+                </button>
+            </div>
             
             <div class="import-methods">
                 <div class="method-card" id="methodAll">
@@ -1053,6 +1058,36 @@
                     await loadRegistrations();
                 } else {
                     showMessage('Error clearing registrations', 'error');
+                }
+            } catch (error) {
+                showMessage('Error: ' + error.message, 'error');
+            }
+        }
+
+        // Clear ALL data (workshops, attendees, registrations)
+        async function clearAllData() {
+            if (!confirm('⚠️ WARNING: This will delete ALL data (workshops, attendees, and registrations). This cannot be undone!\n\nAre you sure you want to continue?')) {
+                return;
+            }
+
+            // Double confirmation
+            if (!confirm('This is your last chance! Click OK to permanently delete ALL data.')) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/admin/clear-all-data', {
+                    method: 'POST'
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showMessage(data.message, 'success');
+                    await loadStats();
+                    await loadRegistrations();
+                } else {
+                    showMessage('Error clearing data: ' + data.message, 'error');
                 }
             } catch (error) {
                 showMessage('Error: ' + error.message, 'error');
